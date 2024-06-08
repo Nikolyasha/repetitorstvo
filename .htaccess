@@ -1,0 +1,4 @@
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^([^\.]+).html$ page.php?page=$1 [NC,L]
+RewriteRule ^([^\.]+).frame$ page.php?frame=$1 [NC,L]

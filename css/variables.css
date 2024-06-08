@@ -1,0 +1,39 @@
+:root{
+    /* colors */
+    --top-menu-bg-color:#1f1f1f;
+    --top-menu-text-color:#fff;
+    --header-bg-color:#fff;
+    --menu-buttons-color:#4D4D4D;
+
+    --footer-bg-color:#1F1F1F;
+    --footer-titles-color:#fff;
+    --footer-text-color:#CECECE;
+    --footer-mail-n-number-color:#fff;
+
+    --search-bg-color:#1f1f1f;
+
+    --vacancy-title-color:#000;
+    --vacancy-text-color:#4D4D4D;
+    --vacancy-name-bg-color:#EDEDED;
+
+    /* fonts */
+
+    /* font-sizes */
+    --top-menu-font-size:14px;
+    --menu-buttons-size:14px;
+
+    --footer-title-size:24px;
+    --footer-text-size:16px;
+    --footer-mail-n-number-size:16px;
+
+    --vacancy-title-size:24px;
+    /* sizes */
+    --main-wrapper-size:1240px;
+
+    /* border */
+    --border-blocks-info:1px solid #EDEDED;
+
+    /* shadow */
+    --shadow-blocks-info:1px 1px 6px 0 rgba(0, 0, 0, 0.25);
+    
+}
