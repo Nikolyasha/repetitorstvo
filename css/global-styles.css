@@ -52,3 +52,21 @@ body{
     padding: 0 20px;
     margin: 0 auto;
 }
+
+.underline{
+    display: flex;
+    margin-top: 7px;
+
+}
+.main--line{
+    width: 190px;
+    height: 2px;
+    background-color: var(--main-site-color);
+}
+.small--line{
+    width: 6px;
+    height: 2px;
+    background-color: var(--main-site-color);
+    margin-left: 6px;
+
+}

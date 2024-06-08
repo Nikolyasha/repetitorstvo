@@ -3,9 +3,9 @@
 // Конфигурация сайта
 $_SETTINGS['site_name_option'] = "Site Name";
 
-$DB_HOST = "localhost";
+$DB_HOST = "mysql-db:3306";
 $DB_USER = "root";
-$DB_PASS = "";
+$DB_PASS = "password";
 $DB_BASE = "repetitorstv";
 
 // Константы
