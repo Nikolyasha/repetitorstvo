@@ -105,8 +105,12 @@
     display: flex;
 }
 .text__left{
-    max-width: 715px;
+    width: 100%;
     flex: 1 0;
+}
+.form__filters{
+    border: var(--border-blocks-info);
+    box-shadow: var(--shadow-blocks-info);
 }
 .vacancy__block{
     border: 3px solid #f2f2f2;
@@ -294,10 +298,15 @@
     border-right: 2px solid #fbedbe;
 } */
 .text__right{
-    margin-left: 20px;
     max-width: 265px;
     flex: 1 0;
-    margin-top: 20px;
+}
+.wrapper-text__left{
+    border: var(--border-blocks-info);
+    box-shadow: var(--shadow-blocks-info);
+    margin-left: 20px;
+    padding: 30px;
+    flex: 1 0;
 }
 .cities{
     display: flex;

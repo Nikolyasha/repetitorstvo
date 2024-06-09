@@ -155,7 +155,7 @@
 }
 .text__text{
     margin-top: 20px;
-    font-size: 20px;
+    font-size: 16px;
     color: var(--vacancy-text-color);
 }
 .vakancyy{
@@ -344,12 +344,12 @@
 }
 .name-of-company{
     margin-top: 15px;
-    font-size: 30px;
+    font-size: 20px;
     color: var(--vacancy-title-color);
 }
 .type-of-company{
     margin-top: 11px;
-    font-size: 20px;
+    font-size: 16px;
     color: var(--vacancy-text-color);
 }
 

@@ -210,93 +210,362 @@ $ankets_count = $ankets_count[0]['ankets_count'];
             <div class="vacancy__body">
                 <div class="container">
                     <div class="vacancy__row">
-                        <div class="text__left">
-                            <? 
-                            if(count($ankets) == 0){ ?>
-                                <div class="vacancy__block no_vacancies">
-                                    К сожалению по вашему запросу ничего не найдено<br>Попробуйте изменить параметры поиска
-                                </div>
-                            <? }
-                            else {
-                                foreach($ankets as $anket){ ?>
-                                    <div class="vacancy__block">
-                                        <div class="vacancy__block_left">
-                                            <? if(empty($anket['photos'])) { ?>
-                                                <? if ($anket['sex'] == 1) { ?>
-                                                    <a href="/anket/<?=  $anket['user_id'] ?>"><img src='/img/avatars/no_photo_female.png' alt='Нет фото' class="vacancy__photo"></a>
-                                                <? } else { ?>                                                    
-                                                    <a href="/anket/<?=  $anket['user_id'] ?>"><img src='/img/avatars/no_photo_male.png' alt='Нет фото' class="vacancy__photo"></a>
+                        <div class="text__right">
+                                <script>
+                                    let openList = [];
+                                </script>
+                                <form action="." method="GET" id="filter_form" class="form__filters">
+                                    <input type="hidden" name="order" value="<?= $_GET['order'] == "old" ? "old" : "new" ?>"/>
+                                    <input type="hidden" name="page" value="<?= (int) $_GET['page'] > 0 ? (int) $_GET['page'] : 0 ?>"/>
+                                    <div class="positions__block">
+                                        <div class="block_positions">
+                                            <a class="positions" onclick="openFilter(this);">
+                                                Город
+                                            </a>
+                                            <ul class="positions__border dropdown_block">
+                                                <? foreach($cities as $city) { ?>
+                                                <li><input class="inp-cbx" id="city_<? echo $city['id']; ?>" type="checkbox" name="cities[]" value="<? echo $city['id']; ?>" />
+                                                    <label class="cbx" for="city_<? echo $city['id']; ?>"><span>
+                                                            <svg width="12px" height="10px">
+                                                                <use xlink:href="#check"></use>
+                                                            </svg></span><span>
+                                                            <? echo $city['name']; ?>
+                                                        </span>
+                                                    </label>
+                                                </li>
                                                 <? } ?>
-                                                
-                                            <? } else { ?>
-                                                <a href="/anket/<?=  $anket['user_id'] ?>"><img src="/img/avatars/<?= explode(",", $anket['photos'])[0] ?>" alt="" class="vacancy__photo"></a>
-                                            <? } ?>
+                                            </ul>
+                                            <script>
+                                                if (<?= !empty($_GET["cities"]) ? "true" : "false" ?>) {
+                                                    [<?= implode(", ", array_values($_GET["cities"])) ?>].forEach(el => {
+                                                        document.getElementById("city_" + el).checked = true;
+                                                    });
+                                                    openList.push(document.getElementsByClassName("positions")[document.getElementsByClassName("positions").length - 1]);
+                                                }
+                                            </script>
                                         </div>
-                                        <div class="vacancy__block_right">
-                                            <div class="vacancy__block_right_title">
-                                                <a href="/anket/<?=  $anket['user_id'] ?>" class="vacancy__block_right_title_title">
-                                                    <?= $anket['first_name'] ?> <?= $_SESSION['account_type'] == 2 ? $anket['last_name'] : "***" ?>, <?= $anket['age'] ?>
-                                                </a>
-                                                <div class="icons__right">
-                                                    <span class="calm"></span>
-                                                    <?= ($_SESSION['account_type'] == 2 ? '<div onclick="setFavoriteAnket(this, '.$anket['id'].')" class="'.($favorites != null ? (in_array(strval($anket['id']), $favorites) ? "active_favorite" : "unactive_favorite") : "unactive_favorite").'"></div>' : '') ?>
-                                                    <?= (!isset($_SESSION['id']) ? '<div onclick="window.location = \'/login.php\'" class="'.$anket['id'].')" class="'.($favorites != null ? (in_array(strval($anket['id']), $favorites) ? "active_favorite" : "unactive_favorite") : "unactive_favorite").'"></div>' : '') ?>
+                                        <div class="block_positions">
+                                            <a class="positions" onclick="openFilter(this);">
+                                                должности
+                                            </a>
+                                            <ul class="positions__border dropdown_block">
+                                                <? foreach($vacancy_types as $vacancy_type) { ?>
+                                                <li><input class="inp-cbx" id="vacancy_type_<? echo $vacancy_type['id']; ?>" type="checkbox" name="vacancy_types[]" value="<? echo $vacancy_type['id']; ?>" />
+                                                    <label class="cbx" for="vacancy_type_<? echo $vacancy_type['id']; ?>"><span>
+                                                            <svg width="12px" height="10px">
+                                                                <use xlink:href="#check"></use>
+                                                            </svg></span><span>
+                                                            <? echo $vacancy_type['vacancy_type_name']; ?>
+                                                        </span>
+                                                    </label>
+                                                </li>
+                                                <? } ?>
+                                            </ul>
+
+                                            <script>
+                                                if (<?= !empty($_GET["vacancy_types"]) ? "true" : "false" ?>) {
+                                                    [<?= implode(", ", array_values($_GET["vacancy_types"])) ?>].forEach(el => {
+                                                        document.getElementById("vacancy_type_" + el).checked = true;
+                                                    });
+                                                    openList.push(document.getElementsByClassName("positions")[document.getElementsByClassName("positions").length - 1]);
+                                                }
+                                            </script>
+                                        </div>
+                                        <div class="block_positions">
+                                            <a class="positions" onclick="openFilter(this);">
+                                                пол
+                                            </a>
+                                            <ul class="positions__border dropdown_block">
+                                                <li>
+                                                    <div class="box">
+                                                        <input id="gender_type_0" type="radio" name="gender_type" value=0>
+                                                        <span class="check"></span>
+                                                        <label for="gender_type_0">Неважно</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="box">
+                                                        <input id="gender_type_1" type="radio" name="gender_type" value=1>
+                                                        <span class="check"></span>
+                                                        <label for="gender_type_1">Мужской</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="box">
+                                                        <input id="gender_type_2" type="radio" name="gender_type" value=2>
+                                                        <span class="check"></span>
+                                                        <label for="gender_type_2">Женский</label>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            <script>
+                                                if (<?= (ctype_digit($_GET["gender_type"]) && ((int) $_GET["gender_type"]) > 0) ? "true" : "false" ?>) {
+                                                    document.getElementsByName("gender_type")[<?= (int) $_GET["gender_type"] ?>].checked = true;
+                                                    openList.push(document.getElementsByClassName("positions")[document.getElementsByClassName("positions").length - 1]);
+                                                }
+                                            </script>
+                                        </div>
+                                        <div class="block_positions">
+                                            <a class="positions" onclick="openFilter(this);">
+                                                возраст
+                                            </a>
+                                            <div class="positions__select dropdown_block">
+                                                <select name="min_age" class="select_one1" id="">
+                                                    <option value="-1">-----</option>
+                                                    <? for($i = 14; $i < 100; $i++) { echo("<option value='$i'>от $i</option>"); } ?>
+                                                </select>
+                                                <div class="tire">
+                                                    -
                                                 </div>
+                                                <select name="max_age" class="select_one1" id="">
+                                                    <option value="-1">-----</option>
+                                                    <? for($i = 14; $i < 100; $i++) { echo("<option value='$i'>до $i</option>"); } ?>
+                                                </select>
                                             </div>
-                                            <div class="vacancy__block_city">
-                                                <div class="vacancy__block_city"><? echo(((int) $anket['city']) > count($cities) ? "-" : $cities[(int) $anket['city'] - 1]['name']); ?> </div>
-                                            </div>
-                                            <div class="vacancy__block_model">
-                                                <?
-                                                    $anket_vacancy_types = [];
-                                                    foreach(explode(",", $anket['job_types']) as $pefer_vacancy){
-                                                        foreach($vacancy_types as $vacancy_type){
-                                                            if((int) $pefer_vacancy == (int) $vacancy_type['id']){
-                                                                array_push($anket_vacancy_types, $vacancy_type['vacancy_type_name']);
-                                                            }
-                                                        }
+                                            <script>
+                                                if (<?= (ctype_digit($_GET["min_age"]) && ((int) $_GET["min_age"]) > -1) || (ctype_digit($_GET["max_age"]) && ((int) $_GET["max_age"]) > -1) ? "true" : "false" ?>) {
+                                                    document.getElementsByName("min_age")[0].value = <?= (int) $_GET["min_age"] ?>;
+                                                    document.getElementsByName("max_age")[0].value = <?= (int) $_GET["max_age"] ?>;
+                                                    openList.push(document.getElementsByClassName("positions")[document.getElementsByClassName("positions").length - 1]);
+                                                }
+                                            </script>
+                                        </div>
+                                        <div class="block_positions">
+                                            <a class="positions" onclick="openFilter(this);">
+                                                Последняя активность
+                                            </a>
+                                            <ul class="positions__border dropdown_block">
+                                                <div class="pos__flex">
+                                                    <li>
+                                                        <div class="box">
+                                                            <input id="last_activity_null" type="radio" name="last_activity" value=-1>
+                                                            <span class="check"></span>
+                                                            <label for="last_activity_null">Неважно</label>
+                                                        </div>
+                                                    </li>
+                                                    <li>
+                                                        <div class="box">
+                                                            <input id="last_activity_0" type="radio" name="last_activity" value=0>
+                                                            <span class="check"></span>
+                                                            <label for="last_activity_0">Не более 3 дней назад</label>
+                                                        </div>
+                                                    </li>
+                                                    <li>
+                                                        <div class="box">
+                                                            <input id="last_activity_1" type="radio" name="last_activity" value=1>
+                                                            <span class="check"></span>
+                                                            <label for="last_activity_1">Не более недели назад</label>
+                                                        </div>
+                                                    </li>
+                                                    <li>
+                                                        <div class="box">
+                                                            <input id="last_activity_2" type="radio" name="last_activity" value=2>
+                                                            <span class="check"></span>
+                                                            <label for="last_activity_2">Не более месяца назад</label>
+                                                        </div>
+                                                    </li>
+                                                </div>
+                                                <script>
+                                                    if (<?= (ctype_digit($_GET["last_activity"]) && ((int) $_GET["last_activity"]) > -1) ? "true" : "false" ?>) {
+                                                        document.getElementsByName("last_activity")[<?= (int) $_GET["last_activity"] ?> + 1].checked = true;
+                                                        openList.push(document.getElementsByClassName("positions")[document.getElementsByClassName("positions").length - 1]);
                                                     }
-                                                    echo(implode(", ", $anket_vacancy_types));
-                                                ?>
+                                                </script>
+                                            </ul>
+                                        </div>
+                                        <!-- CUSTOM AREA -->
+                                        <? foreach($filters as $filter) { $checked = False; ?>
+                                        <div class="block_positions">
+                                            <a class="positions" onclick="openFilter(this);">
+                                                <? echo $filter['display']; ?>
+                                            </a>
+                                            <? switch($filter['type']){  
+                                                    case 0: ?>
+                                            <ul class="positions__border dropdown_block">
+                                                <? $i = 0;
+                                                foreach(explode(";", $filter['options']) as $filter_option) { ?>
+                                                <li>
+                                                    <input class="inp-cbx" id="extra_<? echo($filter['name'] . '_' . $i); ?>" type="checkbox" name="extra_<? echo($filter['name']); ?>[]" value="<? echo $i; ?>" />
+                                                    <label class="cbx" for="extra_<? echo($filter['name'] . '_' . $i); ?>"><span>
+                                                            <svg width="12px" height="10px">
+                                                                <use xlink:href="#check"></use>
+                                                            </svg></span><span>
+                                                            <? echo($filter_option); ?>
+                                                        </span>
+                                                    </label>
+                                                </li>
+                                                <? $i++; } ?>
+                                            </ul>
+                                            <script>
+                                                if (<?= (!empty($_GET["extra_{$filter['name']}"]) && ((int) $_GET["extra_{$filter['name']}"]) > -1) ? "true" : "false" ?>) openList.push(document.getElementsByClassName("positions")[document.getElementsByClassName("positions").length - 1]);
+                                            </script>
+                                            <script>
+                                                if (<?= !empty("extra_{$filter['name']}") ? "true" : "false" ?>) {
+                                                    [<?= implode(", ", array_values($_GET["extra_{$filter['name']}"])) ?>].forEach(el => {
+                                                        document.getElementById("extra_<? echo($filter['name'] . '_'); ?>" + el).checked = true;
+                                                    });
+                                                    openList.push(document.getElementsByClassName("positions")[document.getElementsByClassName("positions").length - 1]);
+                                                }
+                                            </script>
+                                            <? break;
+                                                    case 1:  ?>
+                                            <ul class="positions__border dropdown_block">
+                                                <li>
+                                                    <div class="box">
+                                                        <input id="extra_<? echo($filter['name'] . '_null'); ?>" type="radio" name="extra_<? echo($filter['name']); ?>" value="-1" checked>
+                                                        <span class="check"></span>
+                                                        <label for="extra_<? echo($filter['name'] . '_null'); ?>">Неважно</label>
+                                                    </div>
+                                                </li>
+                                                <? $i = 0;
+                                                            foreach(explode(";", $filter['options']) as $filter_option) { ?>
+                                                <li>
+                                                    <div class="box">
+                                                        <input id="extra_<? echo($filter['name'] . '_' . $i); ?>" type="radio" name="extra_<? echo($filter['name']); ?>" value="<? echo $i; ?>" <? if(!$checked && ctype_digit($_GET["extra_{$filter['name']}"]) && (int) $_GET["extra_{$filter['name']}"]==$i){ echo "checked" ; $checked=True; } ?>>
+                                                        <span class="check"></span>
+                                                        <label for="extra_<? echo($filter['name'] . '_' . $i); ?>">
+                                                            <? echo($filter_option); ?>
+                                                        </label>
+                                                    </div>
+                                                </li>
+                                                <? $i++; } ?>
+                                            </ul>
+                                            <script>
+                                                if (<?= (ctype_digit($_GET["extra_{$filter['name']}"]) && ((int) $_GET["extra_{$filter['name']}"]) > -1) ? "true" : "false" ?>) openList.push(document.getElementsByClassName("positions")[document.getElementsByClassName("positions").length - 1]);
+                                            </script>
+                                            <? break;
+                                                    case 2: ?>
+                                            <div class="positions__select dropdown_block">
+                                                <select name="extra_<? echo($filter['name']); ?>" class="extra_select" id="extra_<? echo($filter['name']); ?>">
+                                                    <option value="-1">-----</option>
+                                                    <? $i = 0;
+                                                                foreach(explode(";", $filter['options']) as $filter_option) { ?>
+                                                    <option value="<? echo $i; ?>">
+                                                        <? echo($filter_option); ?>
+                                                    </option>
+                                                    <? $i++; } ?>
+                                                </select>
                                             </div>
-                                            <div class="vacancy__block_button_and_photo">
-                                                <? 
-                                                    if(((int) $anket['last_online'] + (5 * 60))  > (int) time()){
-                                                        echo('<div class="vacancy__block_button online_status_active"><a class="user_status">Сейчас на сайте</a></div>');
-                                                    } else {
-                                                        echo('<div class="vacancy__block_button online_status_disabled"><a class="user_status">Был(а) на сайте '.gmdate("d.m.Y в H:i", $anket['last_online']).'</a></div>');
-                                                    }
-                                                    $reg_date = explode(":", (new DateTime($anket['reg_date']))->diff(new DateTime)->format(' %d дней: %m месяцев: %y лет'));
-                                                    $reg_date = ($reg_date[0] != " 0 дней" ? $reg_date[0] : "").($reg_date[1] != " 0 месяцев" ? $reg_date[1] : "").($reg_date[2] != " 0 лет" ? $reg_date[2] : "");
-                                                ?>
-                                                <div class="vacancy__block_photo">
-                                                    <a><?= empty($anket['photos']) ? "0" : count(explode(",", $anket['photos'])) ?> фото</a>
-                                                </div>
+                                            <script>
+                                                extra_<? echo($filter['name']); ?> .value = <?= ctype_digit($_GET["extra_{$filter['name']}"]) ? $_GET["extra_{$filter['name']}"] : -1; ?>;
+                                                if (<?= (ctype_digit($_GET["extra_{$filter['name']}"]) && ((int) $_GET["extra_{$filter['name']}"]) > -1) ? "true" : "false" ?>) openList.push(document.getElementsByClassName("positions")[document.getElementsByClassName("positions").length - 1]);
+                                            </script>
+                                            <?break; default: break;?>
+                                            <? } print_r((int) $_GET["extra_{$filter['name']}"]); ?>
+                                        </div>
+                                        <? } ?>
+                                        <!-- CUSTOM AREA -->
+
+                                        <button class="block__button">
+                                            фильтровать
+                                        </button>
+                                    </div>
+                                </form>
+                                <div class="search__vacancies">
+                                    <div class="search__vacancies_title">
+                                        <a href="/vacancy/">поиск вакансий</a>
+                                    </div>
+                                    <ul class="search__list">
+                                        <?
+                                            foreach($vacancy_types as $item){
+                                                echo('<li><a href="/vacancy?vacancy_types[]='.$item['id'].'">'.$item['vacancy_type_name'].'</a></li>');
+                                            }
+                                        ?>
+                                    </ul>
+                                </div>
+                                <div class="ads" id="right_banner"></div>
+
+                        </div>
+
+                        <div class="text__left">
+                            <div class="wrapper-text__left">
+                                <? 
+                                if(count($ankets) == 0){ ?>
+                                    <div class="vacancy__block no_vacancies">
+                                        К сожалению по вашему запросу ничего не найдено<br>Попробуйте изменить параметры поиска
+                                    </div>
+                                <? }
+                                else {
+                                    foreach($ankets as $anket){ ?>
+                                        <div class="vacancy__block">
+                                            <div class="vacancy__block_left">
+                                                <? if(empty($anket['photos'])) { ?>
+                                                    <? if ($anket['sex'] == 1) { ?>
+                                                        <a href="/anket/<?=  $anket['user_id'] ?>"><img src='/img/avatars/no_photo_female.png' alt='Нет фото' class="vacancy__photo"></a>
+                                                    <? } else { ?>                                                    
+                                                        <a href="/anket/<?=  $anket['user_id'] ?>"><img src='/img/avatars/no_photo_male.png' alt='Нет фото' class="vacancy__photo"></a>
+                                                    <? } ?>
+                                                    
+                                                <? } else { ?>
+                                                    <a href="/anket/<?=  $anket['user_id'] ?>"><img src="/img/avatars/<?= explode(",", $anket['photos'])[0] ?>" alt="" class="vacancy__photo"></a>
+                                                <? } ?>
                                             </div>
-                                            <div class="vacancy__working">
-                                                <? if(!isset($_SESSION['account_type'])){ ?> 
-                                                <img src="/img/lock.png" alt="">
-                                                <div class="contact__working">
-                                                    Контактная информация в доступна только
-                                                    работодателям. <a href="/signup.php" class="registration">Зарегистрироваться</a>
-                                                </div>
-                                                <? } else if($_SESSION['account_type'] < 2){ ?> 
-                                                <img src="/img/lock.png" alt="">
-                                                <div class="contact__working">
-                                                    Контактная информация в анкетах доступна только работодателям.
-                                                </div>
-                                                <? } else if($_SESSION['account_type'] == 2) { ?>
-                                                <div class="info__world">
-                                                    <div class="contact__working">
-                                                        <a href="/anket/<?=  $anket['user_id'] ?>" target="_blank">Смотреть анкету</a>
+                                            <div class="vacancy__block_right">
+                                                <div class="vacancy__block_right_title">
+                                                    <a href="/anket/<?=  $anket['user_id'] ?>" class="vacancy__block_right_title_title">
+                                                        <?= $anket['first_name'] ?> <?= $_SESSION['account_type'] == 2 ? $anket['last_name'] : "***" ?>, <?= $anket['age'] ?>
+                                                    </a>
+                                                    <div class="icons__right">
+                                                        <span class="calm"></span>
+                                                        <?= ($_SESSION['account_type'] == 2 ? '<div onclick="setFavoriteAnket(this, '.$anket['id'].')" class="'.($favorites != null ? (in_array(strval($anket['id']), $favorites) ? "active_favorite" : "unactive_favorite") : "unactive_favorite").'"></div>' : '') ?>
+                                                        <?= (!isset($_SESSION['id']) ? '<div onclick="window.location = \'/login.php\'" class="'.$anket['id'].')" class="'.($favorites != null ? (in_array(strval($anket['id']), $favorites) ? "active_favorite" : "unactive_favorite") : "unactive_favorite").'"></div>' : '') ?>
                                                     </div>
                                                 </div>
-                                                <? } ?>
+                                                <div class="vacancy__block_city">
+                                                    <div class="vacancy__block_city"><? echo(((int) $anket['city']) > count($cities) ? "-" : $cities[(int) $anket['city'] - 1]['name']); ?> </div>
+                                                </div>
+                                                <div class="vacancy__block_model">
+                                                    <?
+                                                        $anket_vacancy_types = [];
+                                                        foreach(explode(",", $anket['job_types']) as $pefer_vacancy){
+                                                            foreach($vacancy_types as $vacancy_type){
+                                                                if((int) $pefer_vacancy == (int) $vacancy_type['id']){
+                                                                    array_push($anket_vacancy_types, $vacancy_type['vacancy_type_name']);
+                                                                }
+                                                            }
+                                                        }
+                                                        echo(implode(", ", $anket_vacancy_types));
+                                                    ?>
+                                                </div>
+                                                <div class="vacancy__block_button_and_photo">
+                                                    <? 
+                                                        if(((int) $anket['last_online'] + (5 * 60))  > (int) time()){
+                                                            echo('<div class="vacancy__block_button online_status_active"><a class="user_status">Сейчас на сайте</a></div>');
+                                                        } else {
+                                                            echo('<div class="vacancy__block_button online_status_disabled"><a class="user_status">Был(а) на сайте '.gmdate("d.m.Y в H:i", $anket['last_online']).'</a></div>');
+                                                        }
+                                                        $reg_date = explode(":", (new DateTime($anket['reg_date']))->diff(new DateTime)->format(' %d дней: %m месяцев: %y лет'));
+                                                        $reg_date = ($reg_date[0] != " 0 дней" ? $reg_date[0] : "").($reg_date[1] != " 0 месяцев" ? $reg_date[1] : "").($reg_date[2] != " 0 лет" ? $reg_date[2] : "");
+                                                    ?>
+                                                    <div class="vacancy__block_photo">
+                                                        <a><?= empty($anket['photos']) ? "0" : count(explode(",", $anket['photos'])) ?> фото</a>
+                                                    </div>
+                                                </div>
+                                                <div class="vacancy__working">
+                                                    <? if(!isset($_SESSION['account_type'])){ ?> 
+                                                    <img src="/img/lock.png" alt="">
+                                                    <div class="contact__working">
+                                                        Контактная информация в доступна только
+                                                        работодателям. <a href="/signup.php" class="registration">Зарегистрироваться</a>
+                                                    </div>
+                                                    <? } else if($_SESSION['account_type'] < 2){ ?> 
+                                                    <img src="/img/lock.png" alt="">
+                                                    <div class="contact__working">
+                                                        Контактная информация в анкетах доступна только работодателям.
+                                                    </div>
+                                                    <? } else if($_SESSION['account_type'] == 2) { ?>
+                                                    <div class="info__world">
+                                                        <div class="contact__working">
+                                                            <a href="/anket/<?=  $anket['user_id'] ?>" target="_blank">Смотреть анкету</a>
+                                                        </div>
+                                                    </div>
+                                                    <? } ?>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    <? } ?>
                                 <? } ?>
-                            <? } ?>
+                            </div>
                             <div class="page_counter_wrapper">
                                 <div class="page_counter">
                                     <?
@@ -344,271 +613,6 @@ $ankets_count = $ankets_count[0]['ankets_count'];
                                         }
                                     ?>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="text__right">
-                            <div class="ads" id="right_banner"></div>
-                            <script>
-                                let openList = [];
-                            </script>
-                            <form action="." method="GET" id="filter_form">
-                                <input type="hidden" name="order" value="<?= $_GET['order'] == "old" ? "old" : "new" ?>"/>
-                                <input type="hidden" name="page" value="<?= (int) $_GET['page'] > 0 ? (int) $_GET['page'] : 0 ?>"/>
-                                <div class="positions__block">
-                                    <div class="block_positions">
-                                        <a class="positions" onclick="openFilter(this);">
-                                            Город
-                                        </a>
-                                        <ul class="positions__border dropdown_block">
-                                            <? foreach($cities as $city) { ?>
-                                            <li><input class="inp-cbx" id="city_<? echo $city['id']; ?>" type="checkbox" name="cities[]" value="<? echo $city['id']; ?>" />
-                                                <label class="cbx" for="city_<? echo $city['id']; ?>"><span>
-                                                        <svg width="12px" height="10px">
-                                                            <use xlink:href="#check"></use>
-                                                        </svg></span><span>
-                                                        <? echo $city['name']; ?>
-                                                    </span>
-                                                </label>
-                                            </li>
-                                            <? } ?>
-                                        </ul>
-                                        <script>
-                                            if (<?= !empty($_GET["cities"]) ? "true" : "false" ?>) {
-                                                [<?= implode(", ", array_values($_GET["cities"])) ?>].forEach(el => {
-                                                    document.getElementById("city_" + el).checked = true;
-                                                });
-                                                openList.push(document.getElementsByClassName("positions")[document.getElementsByClassName("positions").length - 1]);
-                                            }
-                                        </script>
-                                    </div>
-                                    <div class="block_positions">
-                                        <a class="positions" onclick="openFilter(this);">
-                                            должности
-                                        </a>
-                                        <ul class="positions__border dropdown_block">
-                                            <? foreach($vacancy_types as $vacancy_type) { ?>
-                                            <li><input class="inp-cbx" id="vacancy_type_<? echo $vacancy_type['id']; ?>" type="checkbox" name="vacancy_types[]" value="<? echo $vacancy_type['id']; ?>" />
-                                                <label class="cbx" for="vacancy_type_<? echo $vacancy_type['id']; ?>"><span>
-                                                        <svg width="12px" height="10px">
-                                                            <use xlink:href="#check"></use>
-                                                        </svg></span><span>
-                                                        <? echo $vacancy_type['vacancy_type_name']; ?>
-                                                    </span>
-                                                </label>
-                                            </li>
-                                            <? } ?>
-                                        </ul>
-
-                                        <script>
-                                            if (<?= !empty($_GET["vacancy_types"]) ? "true" : "false" ?>) {
-                                                [<?= implode(", ", array_values($_GET["vacancy_types"])) ?>].forEach(el => {
-                                                    document.getElementById("vacancy_type_" + el).checked = true;
-                                                });
-                                                openList.push(document.getElementsByClassName("positions")[document.getElementsByClassName("positions").length - 1]);
-                                            }
-                                        </script>
-                                    </div>
-                                    <div class="block_positions">
-                                        <a class="positions" onclick="openFilter(this);">
-                                            пол
-                                        </a>
-                                        <ul class="positions__border dropdown_block">
-                                            <li>
-                                                <div class="box">
-                                                    <input id="gender_type_0" type="radio" name="gender_type" value=0>
-                                                    <span class="check"></span>
-                                                    <label for="gender_type_0">Неважно</label>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div class="box">
-                                                    <input id="gender_type_1" type="radio" name="gender_type" value=1>
-                                                    <span class="check"></span>
-                                                    <label for="gender_type_1">Мужской</label>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div class="box">
-                                                    <input id="gender_type_2" type="radio" name="gender_type" value=2>
-                                                    <span class="check"></span>
-                                                    <label for="gender_type_2">Женский</label>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                        <script>
-                                            if (<?= (ctype_digit($_GET["gender_type"]) && ((int) $_GET["gender_type"]) > 0) ? "true" : "false" ?>) {
-                                                document.getElementsByName("gender_type")[<?= (int) $_GET["gender_type"] ?>].checked = true;
-                                                openList.push(document.getElementsByClassName("positions")[document.getElementsByClassName("positions").length - 1]);
-                                            }
-                                        </script>
-                                    </div>
-                                    <div class="block_positions">
-                                        <a class="positions" onclick="openFilter(this);">
-                                            возраст
-                                        </a>
-                                        <div class="positions__select dropdown_block">
-                                            <select name="min_age" class="select_one1" id="">
-                                                <option value="-1">-----</option>
-                                                <? for($i = 14; $i < 100; $i++) { echo("<option value='$i'>от $i</option>"); } ?>
-                                            </select>
-                                            <div class="tire">
-                                                -
-                                            </div>
-                                            <select name="max_age" class="select_one1" id="">
-                                                <option value="-1">-----</option>
-                                                <? for($i = 14; $i < 100; $i++) { echo("<option value='$i'>до $i</option>"); } ?>
-                                            </select>
-                                        </div>
-                                        <script>
-                                            if (<?= (ctype_digit($_GET["min_age"]) && ((int) $_GET["min_age"]) > -1) || (ctype_digit($_GET["max_age"]) && ((int) $_GET["max_age"]) > -1) ? "true" : "false" ?>) {
-                                                document.getElementsByName("min_age")[0].value = <?= (int) $_GET["min_age"] ?>;
-                                                document.getElementsByName("max_age")[0].value = <?= (int) $_GET["max_age"] ?>;
-                                                openList.push(document.getElementsByClassName("positions")[document.getElementsByClassName("positions").length - 1]);
-                                            }
-                                        </script>
-                                    </div>
-                                    <div class="block_positions">
-                                        <a class="positions" onclick="openFilter(this);">
-                                            Последняя активность
-                                        </a>
-                                        <ul class="positions__border dropdown_block">
-                                            <div class="pos__flex">
-                                                <li>
-                                                    <div class="box">
-                                                        <input id="last_activity_null" type="radio" name="last_activity" value=-1>
-                                                        <span class="check"></span>
-                                                        <label for="last_activity_null">Неважно</label>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div class="box">
-                                                        <input id="last_activity_0" type="radio" name="last_activity" value=0>
-                                                        <span class="check"></span>
-                                                        <label for="last_activity_0">Не более 3 дней назад</label>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div class="box">
-                                                        <input id="last_activity_1" type="radio" name="last_activity" value=1>
-                                                        <span class="check"></span>
-                                                        <label for="last_activity_1">Не более недели назад</label>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div class="box">
-                                                        <input id="last_activity_2" type="radio" name="last_activity" value=2>
-                                                        <span class="check"></span>
-                                                        <label for="last_activity_2">Не более месяца назад</label>
-                                                    </div>
-                                                </li>
-                                            </div>
-                                            <script>
-                                                if (<?= (ctype_digit($_GET["last_activity"]) && ((int) $_GET["last_activity"]) > -1) ? "true" : "false" ?>) {
-                                                    document.getElementsByName("last_activity")[<?= (int) $_GET["last_activity"] ?> + 1].checked = true;
-                                                    openList.push(document.getElementsByClassName("positions")[document.getElementsByClassName("positions").length - 1]);
-                                                }
-                                            </script>
-                                        </ul>
-                                    </div>
-                                    <!-- CUSTOM AREA -->
-                                    <? foreach($filters as $filter) { $checked = False; ?>
-                                    <div class="block_positions">
-                                        <a class="positions" onclick="openFilter(this);">
-                                            <? echo $filter['display']; ?>
-                                        </a>
-                                        <? switch($filter['type']){  
-                                                case 0: ?>
-                                        <ul class="positions__border dropdown_block">
-                                            <? $i = 0;
-                                            foreach(explode(";", $filter['options']) as $filter_option) { ?>
-                                            <li>
-                                                <input class="inp-cbx" id="extra_<? echo($filter['name'] . '_' . $i); ?>" type="checkbox" name="extra_<? echo($filter['name']); ?>[]" value="<? echo $i; ?>" />
-                                                <label class="cbx" for="extra_<? echo($filter['name'] . '_' . $i); ?>"><span>
-                                                        <svg width="12px" height="10px">
-                                                            <use xlink:href="#check"></use>
-                                                        </svg></span><span>
-                                                        <? echo($filter_option); ?>
-                                                    </span>
-                                                </label>
-                                            </li>
-                                            <? $i++; } ?>
-                                        </ul>
-                                        <script>
-                                            if (<?= (!empty($_GET["extra_{$filter['name']}"]) && ((int) $_GET["extra_{$filter['name']}"]) > -1) ? "true" : "false" ?>) openList.push(document.getElementsByClassName("positions")[document.getElementsByClassName("positions").length - 1]);
-                                        </script>
-                                        <script>
-                                            if (<?= !empty("extra_{$filter['name']}") ? "true" : "false" ?>) {
-                                                [<?= implode(", ", array_values($_GET["extra_{$filter['name']}"])) ?>].forEach(el => {
-                                                    document.getElementById("extra_<? echo($filter['name'] . '_'); ?>" + el).checked = true;
-                                                });
-                                                openList.push(document.getElementsByClassName("positions")[document.getElementsByClassName("positions").length - 1]);
-                                            }
-                                        </script>
-                                        <? break;
-                                                case 1:  ?>
-                                        <ul class="positions__border dropdown_block">
-                                            <li>
-                                                <div class="box">
-                                                    <input id="extra_<? echo($filter['name'] . '_null'); ?>" type="radio" name="extra_<? echo($filter['name']); ?>" value="-1" checked>
-                                                    <span class="check"></span>
-                                                    <label for="extra_<? echo($filter['name'] . '_null'); ?>">Неважно</label>
-                                                </div>
-                                            </li>
-                                            <? $i = 0;
-                                                        foreach(explode(";", $filter['options']) as $filter_option) { ?>
-                                            <li>
-                                                <div class="box">
-                                                    <input id="extra_<? echo($filter['name'] . '_' . $i); ?>" type="radio" name="extra_<? echo($filter['name']); ?>" value="<? echo $i; ?>" <? if(!$checked && ctype_digit($_GET["extra_{$filter['name']}"]) && (int) $_GET["extra_{$filter['name']}"]==$i){ echo "checked" ; $checked=True; } ?>>
-                                                    <span class="check"></span>
-                                                    <label for="extra_<? echo($filter['name'] . '_' . $i); ?>">
-                                                        <? echo($filter_option); ?>
-                                                    </label>
-                                                </div>
-                                            </li>
-                                            <? $i++; } ?>
-                                        </ul>
-                                        <script>
-                                            if (<?= (ctype_digit($_GET["extra_{$filter['name']}"]) && ((int) $_GET["extra_{$filter['name']}"]) > -1) ? "true" : "false" ?>) openList.push(document.getElementsByClassName("positions")[document.getElementsByClassName("positions").length - 1]);
-                                        </script>
-                                        <? break;
-                                                case 2: ?>
-                                        <div class="positions__select dropdown_block">
-                                            <select name="extra_<? echo($filter['name']); ?>" class="extra_select" id="extra_<? echo($filter['name']); ?>">
-                                                <option value="-1">-----</option>
-                                                <? $i = 0;
-                                                            foreach(explode(";", $filter['options']) as $filter_option) { ?>
-                                                <option value="<? echo $i; ?>">
-                                                    <? echo($filter_option); ?>
-                                                </option>
-                                                <? $i++; } ?>
-                                            </select>
-                                        </div>
-                                        <script>
-                                            extra_<? echo($filter['name']); ?> .value = <?= ctype_digit($_GET["extra_{$filter['name']}"]) ? $_GET["extra_{$filter['name']}"] : -1; ?>;
-                                            if (<?= (ctype_digit($_GET["extra_{$filter['name']}"]) && ((int) $_GET["extra_{$filter['name']}"]) > -1) ? "true" : "false" ?>) openList.push(document.getElementsByClassName("positions")[document.getElementsByClassName("positions").length - 1]);
-                                        </script>
-                                        <?break; default: break;?>
-                                        <? } print_r((int) $_GET["extra_{$filter['name']}"]); ?>
-                                    </div>
-                                    <? } ?>
-                                    <!-- CUSTOM AREA -->
-
-                                    <button class="block__button">
-                                        фильтровать
-                                    </button>
-                                </div>
-                            </form>
-                            <div class="search__vacancies">
-                                <div class="search__vacancies_title">
-                                    <a href="/vacancy/">поиск вакансий</a>
-                                </div>
-                                <ul class="search__list">
-                                    <?
-                                        foreach($vacancy_types as $item){
-                                            echo('<li><a href="/vacancy?vacancy_types[]='.$item['id'].'">'.$item['vacancy_type_name'].'</a></li>');
-                                        }
-                                    ?>
-                                </ul>
                             </div>
                         </div>
                     </div>
