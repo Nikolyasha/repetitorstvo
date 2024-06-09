@@ -204,7 +204,6 @@ $vacancy_count = $vacancy_count[0]['vacancies_count'];
     <div class="wrapper">
         <? include("../views/header.php"); ?>
         <? include("../views/search.php"); ?>
-        <div class="item">
         <div class="vakancy__title">
                 <div class="container">
                     <div class="vakancy__row__title">
@@ -607,6 +606,7 @@ $vacancy_count = $vacancy_count[0]['vacancies_count'];
                                     $post_date = date_parse($item['public_date']);
                                     echo('                                 
                                     <div class="vacancy__block '.$class.'">
+                                    
                                         <div class="wrapper_block">
                                             <div class="vakancy__block_right">
                                                 <div class="vakancy__block_right_text">
@@ -630,6 +630,7 @@ $vacancy_count = $vacancy_count[0]['vacancies_count'];
                                                 <div class="vakancy__block_right_img">
                                                     <img src="/img/companies/'.$item['logo'].'" alt="">
                                                 </div>
+                                                
                                             </div>
                                             <div class="button_footer">
                                             '.($_SESSION['account_type'] != 2 ? '
@@ -640,20 +641,24 @@ $vacancy_count = $vacancy_count[0]['vacancies_count'];
                                                     '.($_SESSION['account_type'] == 1 ? '<div onclick="setFavoriteVacancy(this, '.$item['id'].')" class="'.(in_array(strval($item['id']), $favorites) ? "active_favorite" : "unactive_favorite").'">
                                                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M4.45067 13.9082L11.4033 20.4395C11.6428 20.6644 11.7625 20.7769 11.9037 20.8046C11.9673 20.8171 12.0327 20.8171 12.0963 20.8046C12.2375 20.7769 12.3572 20.6644 12.5967 20.4395L19.5493 13.9082C21.5055 12.0706 21.743 9.0466 20.0978 6.92607L19.7885 6.52734C17.8203 3.99058 13.8696 4.41601 12.4867 7.31365C12.2913 7.72296 11.7087 7.72296 11.5133 7.31365C10.1304 4.41601 6.17972 3.99058 4.21154 6.52735L3.90219 6.92607C2.25695 9.0466 2.4945 12.0706 4.45067 13.9082Z" stroke="var(--main-site-color)" stroke-width="1"></path> </g></svg>
 
-                                                    </div>' : '').'
+                                                    </div> </div>' : '').'
                                                     '.(!isset($_SESSION['id']) ? '<div onclick="window.location = \'/login.php\'" class="'.(in_array(strval($anket['id']), $favorites) ? "active_favorite" : "unactive_favorite").'">
-                                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M4.45067 13.9082L11.4033 20.4395C11.6428 20.6644 11.7625 20.7769 11.9037 20.8046C11.9673 20.8171 12.0327 20.8171 12.0963 20.8046C12.2375 20.7769 12.3572 20.6644 12.5967 20.4395L19.5493 13.9082C21.5055 12.0706 21.743 9.0466 20.0978 6.92607L19.7885 6.52734C17.8203 3.99058 13.8696 4.41601 12.4867 7.31365C12.2913 7.72296 11.7087 7.72296 11.5133 7.31365C10.1304 4.41601 6.17972 3.99058 4.21154 6.52735L3.90219 6.92607C2.25695 9.0466 2.4945 12.0706 4.45067 13.9082Z" fill="#ffffff" fill-opacity="1" stroke="var(--main-site-color)" stroke-width="1.4"></path> </g></svg>
+                                                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M4.45067 13.9082L11.4033 20.4395C11.6428 20.6644 11.7625 20.7769 11.9037 20.8046C11.9673 20.8171 12.0327 20.8171 12.0963 20.8046C12.2375 20.7769 12.3572 20.6644 12.5967 20.4395L19.5493 13.9082C21.5055 12.0706 21.743 9.0466 20.0978 6.92607L19.7885 6.52734C17.8203 3.99058 13.8696 4.41601 12.4867 7.31365C12.2913 7.72296 11.7087 7.72296 11.5133 7.31365C10.1304 4.41601 6.17972 3.99058 4.21154 6.52735L3.90219 6.92607C2.25695 9.0466 2.4945 12.0706 4.45067 13.9082Z" fill="#ffffff" fill-opacity="1" stroke="var(--main-site-color)" stroke-width="1.4"></path> </g></svg>
 
                                                     </div>
+                                                    
                                                 </div>
                                                 <div class="vacancy__block_left_where">
                                                     '.(strlen($post_date['day']) == 1 ? "0".$post_date['day'] : $post_date['day']).' '.$MONTHES[$post_date['month']-1].'
                                                 </div>
                                                 ' : '').'
                                                 </div>
+                                                
                                             </div>
                                             <div class="line__block"><div class="line_main"></div></div>
-                                        </div>');
+                                        </div>
+                                        
+                                        ');
                                         }
                                     }
                                     ?>
@@ -710,11 +715,14 @@ $vacancy_count = $vacancy_count[0]['vacancies_count'];
                     </div>
                 </div>
             </div>
-        </div>
-        <? include("../views/footer.php"); ?>
+            </div>
+            <? include("../views/footer.php"); ?>
+
+
         <script type="text/javascript" src="/js/search.js"></script>
         
     </div>
+
 </body>
 
 </html>

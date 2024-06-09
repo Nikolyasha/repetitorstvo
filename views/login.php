@@ -13,6 +13,7 @@
     <!-- Style.css -->
     <link rel="stylesheet" type="text/css" href="assets/css/style.css">
     <!-- color .css -->
+    <link rel="stylesheet" type="text/css" href="/css/form.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
     <link rel="stylesheet" href="/css/page.css">
@@ -29,7 +30,6 @@
             --main-site-color: <?=$_SETTINGS['primay_color_option']?>;
         }
     </style>
-    <link rel="stylesheet" type="text/css" href="/css/form.css">
 </head>
 <body>
     <div class="wrapper">
