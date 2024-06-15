@@ -187,22 +187,29 @@ $ankets_count = $ankets_count[0]['ankets_count'];
                 <div class="container">
                     <div class="vakancy__row__title">
                         <div class="vakancy__main">
-                            <div class="vakancy__public">
-                                Найдено <? echo $ankets_count;
-                                switch($ankets_count){
-                                    case 1: echo(" анкета"); break;
-                                    case 2: case 3: case 4:  echo(" анкеты"); break;
-                                    default: echo(" анкет"); break;
-                                } ?> 
+                            <div class="vakancy__public-container">
+                                <div class="vakancy__public">
+                                    Найдено <? echo $ankets_count;
+                                    switch($ankets_count){
+                                        case 1: echo(" анкета"); break;
+                                        case 2: case 3: case 4:  echo(" анкеты"); break;
+                                        default: echo(" анкет"); break;
+                                    } ?> 
+                                </div>
+                                <div class="underline">
+                                    <div class="main--line"></div>
+                                    <div class="small--line"></div>
+                                </div>  
                             </div>
-                            <div class="vakancy__button">
-                                <a href="." class="vak__button">Сбросить все фильтры</a>
+                            <div class="vakancy__buttons-container">
+                                <div class="vakancy__sorting">
+                                    сортировка: <a onclick="changeSort('<?= $_GET['order'] == "old" ? "new" : "old" ?>');"><?= $_GET['order'] == "old" ? "Сначала старые" : "Сначала новые" ?></a>
+                                </div>
+                                <div class="vakancy__button">
+                                    <a href="." class="vak__button">Сбросить все фильтры</a>
+                                </div>  
                             </div>
-                        </div>
-                        <div class="vakancy__main">
-                            <div class="vakancy__sorting">
-                                сортировка: <a onclick="changeSort('<?= $_GET['order'] == "old" ? "new" : "old" ?>');"><?= $_GET['order'] == "old" ? "Сначала старые" : "Сначала новые" ?></a>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -451,14 +458,15 @@ $ankets_count = $ankets_count[0]['ankets_count'];
                                                 if (<?= (ctype_digit($_GET["extra_{$filter['name']}"]) && ((int) $_GET["extra_{$filter['name']}"]) > -1) ? "true" : "false" ?>) openList.push(document.getElementsByClassName("positions")[document.getElementsByClassName("positions").length - 1]);
                                             </script>
                                             <?break; default: break;?>
-                                            <? } print_r((int) $_GET["extra_{$filter['name']}"]); ?>
+                                            <? }?>
                                         </div>
                                         <? } ?>
                                         <!-- CUSTOM AREA -->
-
-                                        <button class="block__button">
-                                            фильтровать
-                                        </button>
+                                         <div class="button__wrapper">
+                                            <button class="block__button">
+                                                фильтровать
+                                            </button>
+                                         </div>
                                     </div>
                                 </form>
                                 <div class="search__vacancies">
@@ -486,81 +494,101 @@ $ankets_count = $ankets_count[0]['ankets_count'];
                                     </div>
                                 <? }
                                 else {
-                                    foreach($ankets as $anket){ ?>
-                                        <div class="vacancy__block">
-                                            <div class="vacancy__block_left">
-                                                <? if(empty($anket['photos'])) { ?>
-                                                    <? if ($anket['sex'] == 1) { ?>
-                                                        <a href="/anket/<?=  $anket['user_id'] ?>"><img src='/img/avatars/no_photo_female.png' alt='Нет фото' class="vacancy__photo"></a>
-                                                    <? } else { ?>                                                    
-                                                        <a href="/anket/<?=  $anket['user_id'] ?>"><img src='/img/avatars/no_photo_male.png' alt='Нет фото' class="vacancy__photo"></a>
+                                    foreach($ankets as $index => $anket){ 
+
+                                        $additionalClass = '';
+                                        if($index == 0) {
+                                            $additionalClass .= 'first';
+                                        }
+                                        if($index == count($ankets) - 1) {
+                                            $additionalClass .= 'last';
+                                        }
+                                        ?>
+                                        <div class="vacancy__block <?php echo $additionalClass  ?>">
+                                            <div class="wrapper_block">
+                                                <div class="vacancy__block_left">
+                                                    <? if(empty($anket['photos'])) { ?>
+                                                        <? if ($anket['sex'] == 1) { ?>
+                                                            <a href="/anket/<?=  $anket['user_id'] ?>"><img src='/img/avatars/no_photo_female_anket.png' alt='Нет фото' class="vacancy__photo"></a>
+                                                        <? } else { ?>                                                    
+                                                            <a href="/anket/<?=  $anket['user_id'] ?>"><img src='/img/avatars/no_photo_male_anket.png' alt='Нет фото' class="vacancy__photo"></a>
+                                                        <? } ?>
+                                                        
+                                                    <? } else { ?>
+                                                        <a href="/anket/<?=  $anket['user_id'] ?>"><img src="/img/avatars/<?= explode(",", $anket['photos'])[0] ?>" alt="" class="vacancy__photo"></a>
                                                     <? } ?>
-                                                    
-                                                <? } else { ?>
-                                                    <a href="/anket/<?=  $anket['user_id'] ?>"><img src="/img/avatars/<?= explode(",", $anket['photos'])[0] ?>" alt="" class="vacancy__photo"></a>
-                                                <? } ?>
-                                            </div>
-                                            <div class="vacancy__block_right">
-                                                <div class="vacancy__block_right_title">
-                                                    <a href="/anket/<?=  $anket['user_id'] ?>" class="vacancy__block_right_title_title">
-                                                        <?= $anket['first_name'] ?> <?= $_SESSION['account_type'] == 2 ? $anket['last_name'] : "***" ?>, <?= $anket['age'] ?>
-                                                    </a>
-                                                    <div class="icons__right">
-                                                        <span class="calm"></span>
-                                                        <?= ($_SESSION['account_type'] == 2 ? '<div onclick="setFavoriteAnket(this, '.$anket['id'].')" class="'.($favorites != null ? (in_array(strval($anket['id']), $favorites) ? "active_favorite" : "unactive_favorite") : "unactive_favorite").'"></div>' : '') ?>
-                                                        <?= (!isset($_SESSION['id']) ? '<div onclick="window.location = \'/login.php\'" class="'.$anket['id'].')" class="'.($favorites != null ? (in_array(strval($anket['id']), $favorites) ? "active_favorite" : "unactive_favorite") : "unactive_favorite").'"></div>' : '') ?>
-                                                    </div>
                                                 </div>
-                                                <div class="vacancy__block_city">
-                                                    <div class="vacancy__block_city"><? echo(((int) $anket['city']) > count($cities) ? "-" : $cities[(int) $anket['city'] - 1]['name']); ?> </div>
-                                                </div>
-                                                <div class="vacancy__block_model">
-                                                    <?
-                                                        $anket_vacancy_types = [];
-                                                        foreach(explode(",", $anket['job_types']) as $pefer_vacancy){
-                                                            foreach($vacancy_types as $vacancy_type){
-                                                                if((int) $pefer_vacancy == (int) $vacancy_type['id']){
-                                                                    array_push($anket_vacancy_types, $vacancy_type['vacancy_type_name']);
+                                                <div class="vacancy__block_right">
+                                                    <div class="vacancy__block_right-info">
+                                                        <div class="vacancy__block_right_title">
+                                                            <a href="/anket/<?=  $anket['user_id'] ?>" class="vacancy__block_right_title_title">
+                                                                <?= $anket['first_name'] ?> <?= $_SESSION['account_type'] == 2 ? $anket['last_name'] : "***" ?>, <?= $anket['age'] ?>
+                                                            </a>
+                                                            <? 
+                                                                if(((int) $anket['last_online'] + (5 * 60))  > (int) time()){
+                                                                    echo('<div class="vacancy__block_button online_status_active"><a class="user_status">Сейчас на сайте</a></div>');
+                                                                } else {
+                                                                    echo('<div class="vacancy__block_button online_status_disabled"><a class="user_status">в сети <strong>'.gmdate("d.m.Y в H:i", $anket['last_online']).'</strong></a></div>');
                                                                 }
-                                                            }
-                                                        }
-                                                        echo(implode(", ", $anket_vacancy_types));
-                                                    ?>
-                                                </div>
-                                                <div class="vacancy__block_button_and_photo">
-                                                    <? 
-                                                        if(((int) $anket['last_online'] + (5 * 60))  > (int) time()){
-                                                            echo('<div class="vacancy__block_button online_status_active"><a class="user_status">Сейчас на сайте</a></div>');
-                                                        } else {
-                                                            echo('<div class="vacancy__block_button online_status_disabled"><a class="user_status">Был(а) на сайте '.gmdate("d.m.Y в H:i", $anket['last_online']).'</a></div>');
-                                                        }
-                                                        $reg_date = explode(":", (new DateTime($anket['reg_date']))->diff(new DateTime)->format(' %d дней: %m месяцев: %y лет'));
-                                                        $reg_date = ($reg_date[0] != " 0 дней" ? $reg_date[0] : "").($reg_date[1] != " 0 месяцев" ? $reg_date[1] : "").($reg_date[2] != " 0 лет" ? $reg_date[2] : "");
-                                                    ?>
-                                                    <div class="vacancy__block_photo">
-                                                        <a><?= empty($anket['photos']) ? "0" : count(explode(",", $anket['photos'])) ?> фото</a>
-                                                    </div>
-                                                </div>
-                                                <div class="vacancy__working">
-                                                    <? if(!isset($_SESSION['account_type'])){ ?> 
-                                                    <img src="/img/lock.png" alt="">
-                                                    <div class="contact__working">
-                                                        Контактная информация в доступна только
-                                                        работодателям. <a href="/signup.php" class="registration">Зарегистрироваться</a>
-                                                    </div>
-                                                    <? } else if($_SESSION['account_type'] < 2){ ?> 
-                                                    <img src="/img/lock.png" alt="">
-                                                    <div class="contact__working">
-                                                        Контактная информация в анкетах доступна только работодателям.
-                                                    </div>
-                                                    <? } else if($_SESSION['account_type'] == 2) { ?>
-                                                    <div class="info__world">
-                                                        <div class="contact__working">
-                                                            <a href="/anket/<?=  $anket['user_id'] ?>" target="_blank">Смотреть анкету</a>
+                                                                $reg_date = explode(":", (new DateTime($anket['reg_date']))->diff(new DateTime)->format(' %d дней: %m месяцев: %y лет'));
+                                                                $reg_date = ($reg_date[0] != " 0 дней" ? $reg_date[0] : "").($reg_date[1] != " 0 месяцев" ? $reg_date[1] : "").($reg_date[2] != " 0 лет" ? $reg_date[2] : "");
+                                                            ?>
+
+                                                        </div>
+                                                        <div class="vacancy__block_city">
+                                                            <div class="vacancy__block_city"><? echo(((int) $anket['city']) > count($cities) ? "-" : $cities[(int) $anket['city'] - 1]['name']); ?> </div>
+                                                        </div>
+                                                        <div class="vacancy__block_model">
+                                                            <?
+                                                                $anket_vacancy_types = [];
+                                                                foreach(explode(",", $anket['job_types']) as $pefer_vacancy){
+                                                                    foreach($vacancy_types as $vacancy_type){
+                                                                        if((int) $pefer_vacancy == (int) $vacancy_type['id']){
+                                                                            array_push($anket_vacancy_types, $vacancy_type['vacancy_type_name']);
+                                                                        }
+                                                                    }
+                                                                }
+                                                                echo(implode(", ", $anket_vacancy_types));
+                                                            ?>
                                                         </div>
                                                     </div>
-                                                    <? } ?>
+                                                    <div class="vacancy__working">
+                                                        <? if(!isset($_SESSION['account_type'])){ ?> 
+                                                        <img src="/img/lock.png" alt="">
+                                                        <div class="contact__working">
+                                                            Контактная информация доступна только
+                                                            работодателям. <a href="/signup.php" class="registration">Зарегистрироваться</a>
+                                                        </div>
+                                                        <? } else if($_SESSION['account_type'] < 2){ ?> 
+                                                        <img src="/img/lock.png" alt="">
+                                                        <div class="contact__working">
+                                                            Контактная информация в анкетах доступна только работодателям.
+                                                        </div>
+                                                        <? } else if($_SESSION['account_type'] == 2) { ?>
+                                                        <div class="info__world">
+                                                            <div class="contact__working-view">
+                                                                <a href="/anket/<?=  $anket['user_id'] ?>" target="_blank">Смотреть</a>
+                                                            </div>
+                                                            <div class="icons__right">
+                                                                <!-- <span class="calm"></span> -->
+                                                                <?= ($_SESSION['account_type'] == 2 ? '
+                                                                <div onclick="setFavoriteAnket(this, '.$anket['id'].')" class="'.($favorites != null ? (in_array(strval($anket['id']), $favorites) ? "active_favorite" : "unactive_favorite") : "unactive_favorite").'">
+                                                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M4.45067 13.9082L11.4033 20.4395C11.6428 20.6644 11.7625 20.7769 11.9037 20.8046C11.9673 20.8171 12.0327 20.8171 12.0963 20.8046C12.2375 20.7769 12.3572 20.6644 12.5967 20.4395L19.5493 13.9082C21.5055 12.0706 21.743 9.0466 20.0978 6.92607L19.7885 6.52734C17.8203 3.99058 13.8696 4.41601 12.4867 7.31365C12.2913 7.72296 11.7087 7.72296 11.5133 7.31365C10.1304 4.41601 6.17972 3.99058 4.21154 6.52735L3.90219 6.92607C2.25695 9.0466 2.4945 12.0706 4.45067 13.9082Z" stroke="var(--main-site-color)" stroke-width="1"></path> </g></svg>
+
+                                                                </div>' : '') 
+                                                                ?>
+                                                                <?= (!isset($_SESSION['id']) ? '<div onclick="window.location = \'/login.php\'" class="'.$anket['id'].')" class="'.($favorites != null ? (in_array(strval($anket['id']), $favorites) ? "active_favorite" : "unactive_favorite") : "unactive_favorite").'">
+                                                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M4.45067 13.9082L11.4033 20.4395C11.6428 20.6644 11.7625 20.7769 11.9037 20.8046C11.9673 20.8171 12.0327 20.8171 12.0963 20.8046C12.2375 20.7769 12.3572 20.6644 12.5967 20.4395L19.5493 13.9082C21.5055 12.0706 21.743 9.0466 20.0978 6.92607L19.7885 6.52734C17.8203 3.99058 13.8696 4.41601 12.4867 7.31365C12.2913 7.72296 11.7087 7.72296 11.5133 7.31365C10.1304 4.41601 6.17972 3.99058 4.21154 6.52735L3.90219 6.92607C2.25695 9.0466 2.4945 12.0706 4.45067 13.9082Z" fill="#ffffff" fill-opacity="1" stroke="var(--main-site-color)" stroke-width="1.4"></path> </g></svg>
+                                                                </div>' : '') ?>
+                                                            </div>
+                                                        </div>
+                                            
+                                                        <? } ?>
+                                                    </div>
                                                 </div>
+                                            </div>
+                                            <div class="line__block">
+                                                <div class="line_main"></div>
                                             </div>
                                         </div>
                                     <? } ?>
