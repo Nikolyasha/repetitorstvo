@@ -66,14 +66,21 @@ $anket_count = $anket_count[0]['ankets_count'];
                 <div class="container">
                     <div class="vakancy__row__title">
                         <div class="vakancy__main">
-                            <div class="vakancy__public">
-                                Найдено <? echo $anket_count;
-                                switch($anket_count){
-                                    case 1: echo(" анкета"); break;
-                                    case 2: case 3: case 4:  echo(" анкеты"); break;
-                                    default: echo(" анкет"); break;
-                                } ?> 
+                            <div class="vakancy__public-container">
+                                <div class="vakancy__public">
+                                    Найдено <? echo $anket_count;
+                                    switch($anket_count){
+                                        case 1: echo(" анкета"); break;
+                                        case 2: case 3: case 4:  echo(" анкеты"); break;
+                                        default: echo(" анкет"); break;
+                                    } ?> 
+                                </div>
+                                <div class="underline">
+                                    <div class="main--line"></div>
+                                    <div class="small--line"></div>
+                                </div>  
                             </div>
+
                          </div>
                         <div class="vakancy__main">
                             <div class="vakancy__sorting">
