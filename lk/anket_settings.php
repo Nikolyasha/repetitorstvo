@@ -178,9 +178,9 @@ if(isset($_POST['action'])){
                         
                         $ph = [];                        
 
-                        if (!empty($_POST['extra_photos_'.$filter['name']])) {
+                        if (!empty($_POST['extra_photos_add_'.$filter['name']])) {
                             $i = 0;
-                            foreach($_POST['extra_photos_'.$filter['name']] as $value){
+                            foreach($_POST['extra_photos_add_'.$filter['name']] as $value){
                                 $value = explode(";", $value)[1];
                                 $value = explode(",", $value)[1];
                                 $value = str_replace(" ", "+", $value);

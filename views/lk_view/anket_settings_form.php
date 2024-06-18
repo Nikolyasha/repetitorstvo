@@ -459,50 +459,63 @@
                                                 case 3: ?>
                                                 <? $phot = [];
                                                     foreach(json_decode($user['extra_fields']) as $param){
-                                                        if ($param->name == $filter['name'])
-                                                            $multipleCheckBox[$option] += (int) $param->$option;
-
+                                                        if ($param->name == $filter['name'])                                                          
                                                             $phot[$param->name] = explode(",", $param->value);                                                                                                                                       
                                                     }?>
                                                         <? if ($filter['name'] == "portfolio") { ?>
-                                                        <div class="col-sm-10">
-                                                            <input id="inpUrl_<?echo $filter['name']?>" style="margin-bottom: 10px;" value="<?echo !strripos(end($phot[$filter['name']]), "/") ? "" : end($phot[$filter['name']])?>" name="inpUrl_<?echo $filter['name']?>" type="text" class="form-control" placeholder="Введите ссылку с youtube" onchange="viewVideo(this.value)">
-                                                             
-                                                            <video id="my-video" width="600" <?echo !strripos(end($phot[$filter['name']]), "/") ? "" : 'controls' ?> class="video-js" data-setup='
-                                                            {                                                                
-                                                                "techOrder": ["youtube"],
-                                                                "sources": [{
-                                                                    "type": "video/youtube",
-                                                                    "src": "<?echo !strripos(end($phot[$filter['name']]), "/") ? "https://www.youtube.com/watch?v=qt9-2_9LxHk" : end($phot[$filter['name']])?>"
-                                                                    }]
-                                                            }
-                                                            '>
-                                                                
-                                                            </video>
-                                                                                                                                                                                                                                                       
-                                                        </div>
-                                                        <?} ?>
-                                                        <br>
+                                                            <div class="col-sm-10">                                                                
+                                                                <?if (!empty($phot[$filter['name']])) {?>
+                                                                <input id="inpUrl_<?echo $filter['name']?>" style="margin-bottom: 10px;" value="<?echo !strripos(end($phot[$filter['name']]), "/") ? "" : end($phot[$filter['name']])?>" name="inpUrl_<?echo $filter['name']?>" type="text" class="form-control" placeholder="Введите ссылку с youtube" onchange="viewVideo(this.value)">
+                                                                 
+                                                                <video id="my-video" width="600" <?echo !strripos(end($phot[$filter['name']]), "/") ? "" : 'controls' ?> class="video-js" data-setup='
+                                                                {                                                                
+                                                                    "techOrder": ["youtube"],
+                                                                    "sources": [{
+                                                                        "type": "video/youtube",
+                                                                        "src": "<?echo !strripos(end($phot[$filter['name']]), "/") ? "https://www.youtube.com/watch?v=qt9-2_9LxHk" : end($phot[$filter['name']])?>"
+                                                                        }]
+                                                                }
+                                                                '>                                                                
+                                                                </video>
+                                                                <?} else {?>
+                                                                    <input id="inpUrl_<?echo $filter['name']?>" style="margin-bottom: 10px;" value="" name="inpUrl_<?echo $filter['name']?>" type="text" class="form-control" placeholder="Введите ссылку с youtube" onchange="viewVideo(this.value)">
+                                                                 
+                                                                <video id="my-video" width="600" class="video-js" data-setup='
+                                                                {                                                                
+                                                                    "techOrder": ["youtube"],
+                                                                    "sources": [{
+                                                                        "type": "video/youtube",
+                                                                        "src": "https://www.youtube.com/watch?v=qt9-2_9LxHk"
+                                                                        }]
+                                                                }
+                                                                '>                                                                
+                                                                </video>
+                                                                <?}?>                                                                                                                                                                                          
+                                                            </div>
+                                                            <?} ?>
+                                                            <br>
+                                                            
+                                                            <input class="" type="file" name="extra_photos_<?echo $filter['name']?>[]" placeholder="Выберите фотографии" accept="image/*" id="imgInp_<?echo $filter['name']?>" onchange="preview('<?=$filter['name']?>')">
                                                         
-                                                        <input class="" type="file" name="extra_photos_<?echo $filter['name']?>[]" placeholder="Выберите фотографии" accept="image/*" id="imgInp_<?echo $filter['name']?>" onchange="preview('<?=$filter['name']?>')">
-                                                    
-                                                        <div style="display: flex;" id="imgForm_<?echo $filter['name']?>">
-
-                                                        <? foreach($phot[$filter['name']] as $val){
-                                                            if (strripos($val, "/") == true)
-                                                                continue;
-                                                                                                                         
-                                                            if (($val != "")) {?>
-                                                                <input id="<? echo $val; ?>" type="hidden" name="extra_remove_photos_<?echo $filter['name']?>[]" value="rm"/>                                                             
-                                                                <div id="photo_<?echo $filter['name']?>">
-                                                                    <input type="hidden" name="extra_photos_name_<?echo $filter['name']?>[]" value="<? echo $val; ?>"/>                                                                                                                            
-                                                                    <a target="_blank" href="/img/filter_photos/<? echo $val; ?>"><img src="/img/filter_photos/<? echo $val; ?>" class="mini_photo"></a>
-                                                                    <span><?echo $val;?></span>
-                                                                    <span onclick="removeImg(this)" class="bm_rm_button">Удалить</span>                                                                    
-                                                                </div>                                                                                                                                                                                    
-                                                            <?}
-                                                        }?>
-                                                        </div>
+                                                            <div style="display: flex;" id="imgForm_<?echo $filter['name']?>">
+    
+                                                            <? if (!empty($phot[$filter['name']])) {                                                                 
+                                                                foreach($phot[$filter['name']] as $val){
+                                                                    if (strripos($val, "/") == true)
+                                                                        continue;
+                                                                                                                                
+                                                                    if (($val != "")) {?>
+                                                                        <input id="<? echo $val; ?>" type="hidden" name="extra_remove_photos_<?echo $filter['name']?>[]" value="rm"/>                                                             
+                                                                        <div id="photo_<?echo $filter['name']?>">
+                                                                            <input type="hidden" name="extra_photos_name_<?echo $filter['name']?>[]" value="<? echo $val; ?>"/>                                                                                                                            
+                                                                            <a target="_blank" href="/img/filter_photos/<? echo $val; ?>"><img src="/img/filter_photos/<? echo $val; ?>" class="mini_photo"></a>
+                                                                            <span><?echo $val;?></span>
+                                                                            <span onclick="removeImg(this)" class="bm_rm_button">Удалить</span>                                                                    
+                                                                        </div>                                                                                                                                                                                    
+                                                                    <?}
+                                                                }
+                                                            }?>
+                                                            </div>
                                                         
                                                         
                                                     <? break;

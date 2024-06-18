@@ -240,7 +240,7 @@ function preview(id) {
             }
             else {                            
             
-                imageContainer.innerHTML += '<div id="photo_'+id+'"><img src="' + reader.result +'" class="mini_photo"><span>'+i.name+'</span><span onclick="removeImg(this)" class="bm_rm_button">Удалить</span> <input type="hidden" name="extra_photos_'+id+'[]" value="'+reader.result+'"/> </div>';
+                imageContainer.innerHTML += '<div id="photo_'+id+'"><img src="' + reader.result +'" class="mini_photo"><span>'+i.name+'</span><span onclick="removeImg(this)" class="bm_rm_button">Удалить</span> <input type="hidden" name="extra_photos_add_'+id+'[]" value="'+reader.result+'"/> </div>';
             }
             
         }        

@@ -48,13 +48,50 @@ function echo_br($text){
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    
+    <!-- for video -->
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    
     <style>
         :root {
             --main-site-color: <?=$_SETTINGS['primay_color_option']?>;
         }
+        .mini_photo {
+        width: 200px;
+        height: 200px;
+        border-radius: 5px;
+        object-fit: cover;
+        /* margin-top: 10px; */
+        margin-right: 10px;
+        }
+        .modal_photo {
+        width: 800px;
+        height: 480px;
+        border-radius: 5px;
+        object-fit: cover;                
+        }
     </style>
 </head>
 <body>
+    <!-- for filter photo -->
+    <div class="modal" id="popupFilter">
+        <div class="window">
+            <div class="modal_header">
+                <div id="txtHeader" class="modal_header__title">Фотографии анкеты</div>
+                <div class="modal_header__close" onclick="hidePopup();"><i class="fas fa-times"></i></div>
+            </div>
+            <div class="modal_content">
+                <div class="modal_content__wrapper">
+                    <img class="modal_photo" src="" id="popup_imgFilter" onclick="nextPhotoFilter();">
+                </div>
+                <p class="modal_nav">
+                    <i class="fas fa-chevron-left" onclick="previousPhotoFilter();"></i>
+                    <span id="modal_photo_idFilter">Фото * из *</span>
+                    <i class="fas fa-chevron-right" onclick="nextPhotoFilter();"></i>
+                </p>
+            </div>
+        </div>
+    </div>
     <div class="wrapper">
         <? include("../views/header.php"); ?>
         <div class="title">
@@ -120,24 +157,99 @@ function echo_br($text){
                                     <div class="company_info_content">
                                         <div class="company_desc_text_block">
                                             <div class="company_desc company_desc_text" id="company_desc">
-                                                <? echo_br($company_info['company_desc']); ?>
+                                                <b>Описание</b><br>
+                                                <? echo_br(explode(";", $company_info['company_desc'])[0]);
+                                                $val = explode(";", $company_info['company_desc'])[1];
+                                                ?>
+
+                                                <? if (strripos($val, "/") == true) { ?>
+                                                <br><b>Видео о компании</b><br>
+                                                <video id="my-video1" width="600" controls class="video-js 1" data-setup='
+                                                    {                                                                
+                                                        "techOrder": ["youtube"],
+                                                        "sources": [{
+                                                            "type": "video/youtube",
+                                                            "src": "<?echo explode(";", $company_info['company_desc'])[1]?>"
+                                                        }]
+                                                    }
+                                                '>                                                                
+                                                </video>
+                                                <?}?>            
+                                                <br><b>Дополнительная информация</b><br>
+                                                <?
+                                    if(strlen($company_info['extra_params']) > 0 && $company_info['extra_params'] != "null"){
+                                        foreach(json_decode($company_info['extra_params'], true) as $field){
+                                            foreach(json_decode($filters, true) as $filter){
+                                                if($filter['name'] == $field['name']){ ?>
+                                                    <? if ($filter['type'] == 0 && count(explode(';', $filter['options'])) > 2)  { 
+                                                        $str = "";?>                                                        
+                                                        <?foreach(explode(";", $filter['options']) as $option) {
+                                                            if ($field[$option] == 1) {
+                                                                $str .= ''.$option.'; ';
+                                                             }
+                                                        }?>
+                                                            
+                                                        <span><? echo $filter['display']; ?></span>: <? echo $str; ?><br>
+                                                                
+                                                                    
+                                                               
+                                                    <?} else if ($filter['type'] == 3) {?>
+                                                        
+                                                        <span><? echo $filter['display']; ?></span>:
+                                                           
+                                                                <div style="display: flex;">                                                                
+                                                                <?$ph =  $field['value'];  $i = 0; foreach( explode(",", $field['value']) as $val) {
+                                                                    if (strripos($val, "/") == true){?>
+
+                                                                    <video id="my-video" width="600" controls class="video-js" data-setup='
+                                                                    {                                                                
+                                                                        "techOrder": ["youtube"],
+                                                                        "sources": [{
+                                                                            "type": "video/youtube",
+                                                                            "src": "<?echo $val?>"
+                                                                            }]
+                                                                    }
+                                                                    '>                                                                
+                                                                    </video>
+                                                                        
+                                                                    <? continue;
+                                                                    }
+                                                                    // echo $val; ?>
+                                                                    <img onclick='showPopupFilter(<?echo $i?>, "<?echo $filter["display"];?>", "<?=$ph?>".split(",")); photosFilter = "<?=$ph?>".split(",");' src="/img/filter_photos/<? echo $val; ?>" class="mini_photo">
+                                                                <?$i++;} ?>
+                                                                
+                                                            
+                                                                <? echo explode(";", $filter['options'])[$field['value']]; ?>
+                                                                </div>
+                                                            
+                                                    <?} else {?>
+
+                                                    <span><? echo $filter['display']; ?></span>: <? echo explode(";", $filter['options'])[$field['value']]; ?><br>
+                                                    
+                                                    
+                                                    <?}
+                                                }
+                                            }
+                                        }
+                                    }
+                                    ?>
                                             </div>
                                             <script>
-                                                let filters = JSON.parse('<? echo($filters); ?>');
-                                                let extraParams = JSON.parse('<? echo($company_info['extra_params']); ?>');
-                                                if(extraParams.length != 0){
-                                                    document.getElementById("company_desc").innerHTML += "<br><br><b>Дополнительная информация</b><br>";
-                                                    filters.forEach(filter => {
-                                                        let exit = false;
-                                                        extraParams.forEach(param => {
-                                                            if(!exit && param['name'] == filter['name']){
-                                                                document.getElementById("company_desc").innerHTML += 
-                                                                    "<span>" + filter['display'] + "</span>: " + filter['options'].split(";")[param['value']] + "<br>";
-                                                                exit = true;
-                                                            }
-                                                        });
-                                                    });
-                                                }
+                                                // let filters = JSON.parse('<? echo($filters); ?>');
+                                                // let extraParams = JSON.parse('<? echo($company_info['extra_params']); ?>');
+                                                // if(extraParams.length != 0){
+                                                //     document.getElementById("company_desc").innerHTML += "<br><br><b>Дополнительная информация</b><br>";
+                                                //     filters.forEach(filter => {
+                                                //         let exit = false;
+                                                //         extraParams.forEach(param => {
+                                                //             if(!exit && param['name'] == filter['name']){
+                                                //                 document.getElementById("company_desc").innerHTML += 
+                                                //                     "<span>" + filter['display'] + "</span>: " + filter['options'].split(";")[param['value']] + "<br>";
+                                                //                 exit = true;
+                                                //             }
+                                                //         });
+                                                //     });
+                                                // }
                                             </script>
                                             <div class="company_desc_readmore">
                                                 <a id="company_desc_readmore_button" onclick="showFullDescription();">Читать полностью</a>
@@ -310,6 +422,11 @@ function echo_br($text){
         <? include("../views/footer.php"); ?>
         <script type="text/javascript" src="/js/company.js"></script> 
         <script type="text/javascript" src="/js/favorite.js"></script> 
+
+        <!-- for video -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/8.15.0/video.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-youtube/3.0.1/Youtube.min.js"></script>
+        <script src="https://unpkg.com/youtube-video-id@latest/dist/youtube-video-id.min.js"></script>
         
         <script type="text/javascript">
             let company_price = <? if ($_SETTINGS['payment_active_option'] == 'false') 

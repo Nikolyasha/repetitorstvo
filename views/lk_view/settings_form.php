@@ -1,5 +1,8 @@
 <link rel="stylesheet" type="text/css" href="../bower_components/switchery/css/switchery.min.css">
 
+<!-- for video -->
+<link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+
 <style>
     .action_column{
         text-align: center !important;
@@ -47,6 +50,20 @@
     }
     .element-margin{
         margin-top: 5px;
+    }
+    .mini_photo {
+        width: 200px;
+        height: 200px;
+        border-radius: 5px;
+        object-fit: cover;
+        /* margin-top: 10px; */
+        margin-right: 10px;
+    }
+    .bm_rm_button{
+        font-weight: blod;
+        color: red;
+        cursor: pointer;
+        text-decoration: underline;
     }
 </style>
 
@@ -148,8 +165,25 @@
                             <div class="form-group row">
                                 <label class="col-sm-2 col-form-label">О компании</label>
                                 <div class="col-sm-10">
-                                    <textarea name="company_desc" rows=5 type="text" class="form-control" placeholder="Развернутое описание вакансии" maxlength="2500" autofocus required><? echo($company['company_desc']); ?></textarea>
+                                    <textarea name="company_desc[]" rows=5 type="text" class="form-control" placeholder="Развернутое описание вакансии" maxlength="2500" autofocus required><? echo(explode(";", $company['company_desc'])[0]); ?></textarea>
                                 </div>
+                                
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Видео о компании</label>
+                                <div class="col-sm-10">
+                                    <input class="form-control" value="<? echo(explode(";", $company['company_desc'])[1]); ?>" placeholder="Введите ссылку с youtube" name="company_desc[]" onchange="viewVideo(this.value)" type="text">
+                                </div>
+                                <video id="my-video1" width="600" <?echo !strripos(explode(";", $company['company_desc'])[1], "/") ? "" : 'controls' ?> class="video-js 1" data-setup='
+                                    {                                                                
+                                        "techOrder": ["youtube"],
+                                        "sources": [{
+                                            "type": "video/youtube",
+                                            "src": "<?echo !strripos(explode(";", $company['company_desc'])[1], "/") ? "https://www.youtube.com/watch?v=qt9-2_9LxHk" : explode(";", $company['company_desc'])[1]?>"
+                                        }]
+                                    }
+                                '>                                
+                                </video>
                             </div>
                             <div class="form-group row">
                                 <label class="col-sm-2 col-form-label">Контактные данные</label>
@@ -227,6 +261,70 @@
                                                          </select>
                                                      </div>
                                                      <? break;
+                                                case 3: ?>
+                                                    <? $phot = [];
+                                                        foreach(json_decode($company['extra_params']) as $param){
+                                                            if ($param->name == $filter['name'])                                                          
+                                                                $phot[$param->name] = explode(",", $param->value);                                                                                                                                       
+                                                        }                                                        
+                                                        ?>
+                                                            <? if ($filter['name'] == "portfolio") { ?>
+                                                            <div class="col-sm-10">                                                                
+                                                                <?if (!empty($phot[$filter['name']])) {?>
+                                                                <input id="inpUrl_<?echo $filter['name']?>" style="margin-bottom: 10px;" value="<?echo !strripos(end($phot[$filter['name']]), "/") ? "" : end($phot[$filter['name']])?>" name="inpUrl_<?echo $filter['name']?>" type="text" class="form-control" placeholder="Введите ссылку с youtube" onchange="viewVideo(this.value)">
+                                                                 
+                                                                <video id="my-video" width="600" <?echo !strripos(end($phot[$filter['name']]), "/") ? "" : 'controls' ?> class="video-js" data-setup='
+                                                                {                                                                
+                                                                    "techOrder": ["youtube"],
+                                                                    "sources": [{
+                                                                        "type": "video/youtube",
+                                                                        "src": "<?echo !strripos(end($phot[$filter['name']]), "/") ? "https://www.youtube.com/watch?v=qt9-2_9LxHk" : end($phot[$filter['name']])?>"
+                                                                        }]
+                                                                }
+                                                                '>                                                                
+                                                                </video>
+                                                                <?} else {?>
+                                                                    <input id="inpUrl_<?echo $filter['name']?>" style="margin-bottom: 10px;" value="" name="inpUrl_<?echo $filter['name']?>" type="text" class="form-control" placeholder="Введите ссылку с youtube" onchange="viewVideo(this.value)">
+                                                                 
+                                                                <video id="my-video" width="600" class="video-js" data-setup='
+                                                                {                                                                
+                                                                    "techOrder": ["youtube"],
+                                                                    "sources": [{
+                                                                        "type": "video/youtube",
+                                                                        "src": "https://www.youtube.com/watch?v=qt9-2_9LxHk"
+                                                                        }]
+                                                                }
+                                                                '>                                                                
+                                                                </video>
+                                                                <?}?>                                                                                                                                                                                          
+                                                            </div>
+                                                            <?} ?>
+                                                            <br>
+                                                            
+                                                            <input class="" type="file" name="extra_photos_<?echo $filter['name']?>[]" placeholder="Выберите фотографии" accept="image/*" id="imgInp_<?echo $filter['name']?>" onchange="preview('<?=$filter['name']?>')">
+                                                        
+                                                            <div style="display: flex;" id="imgForm_<?echo $filter['name']?>">
+    
+                                                            <? if (!empty($phot[$filter['name']])) {                                                                 
+                                                                foreach($phot[$filter['name']] as $val){
+                                                                    if (strripos($val, "/") == true)
+                                                                        continue;
+                                                                                                                                
+                                                                    if (($val != "")) {?>
+                                                                        <input id="<? echo $val; ?>" type="hidden" name="extra_remove_photos_<?echo $filter['name']?>[]" value="rm"/>                                                             
+                                                                        <div id="photo_<?echo $filter['name']?>">
+                                                                            <input type="hidden" name="extra_photos_name_<?echo $filter['name']?>[]" value="<? echo $val; ?>"/>                                                                                                                            
+                                                                            <a target="_blank" href="/img/filter_photos/<? echo $val; ?>"><img src="/img/filter_photos/<? echo $val; ?>" class="mini_photo"></a>
+                                                                            <span><?echo $val;?></span>
+                                                                            <span onclick="removeImg(this)" class="bm_rm_button">Удалить</span>                                                                    
+                                                                        </div>                                                                                                                                                                                    
+                                                                    <?}
+                                                                }
+                                                            }?>
+                                                            </div>
+                                                            
+                                                            
+                                                        <? break;
                                              } ?>
                                      </div>
                                      
@@ -308,9 +406,16 @@
     <script src="../assets/js/demo-12.js"></script>
     <script src="../assets/js/jquery.mCustomScrollbar.concat.min.js"></script>
     <script src="../assets/js/jquery.mousewheel.min.js"></script>
+
+    <!-- for video -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/8.15.0/video.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-youtube/3.0.1/Youtube.min.js"></script>
+    <script src="https://unpkg.com/youtube-video-id@latest/dist/youtube-video-id.min.js"></script>
     
     
     <script>
+        const max_photos = <?=$_SETTINGS['max_profile_photos_option']?$_SETTINGS['max_profile_photos_option']:"5"?>;
+
         function checkPassCompany() {
             let form = document.forms[0];
             if(!form.checkValidity()){
@@ -335,5 +440,6 @@
                 return;
             }
             form.submit();
-        }        
+        }
+        
     </script>

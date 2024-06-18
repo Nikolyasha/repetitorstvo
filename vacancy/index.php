@@ -111,13 +111,50 @@ function echo_br($text){
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet"> 
+    
+    <!-- for video -->
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+
     <style>
         :root {
             --main-site-color: <?=$_SETTINGS['primay_color_option']?>;
         }
+        .mini_photo {
+        width: 200px;
+        height: 200px;
+        border-radius: 5px;
+        object-fit: cover;
+        /* margin-top: 10px; */
+        margin-right: 10px;
+        }
+        .modal_photo {
+        width: 800px;
+        height: 480px;
+        border-radius: 5px;
+        object-fit: cover;                
+        }
     </style>
 </head>
 <body>
+    <!-- for filter photo -->
+    <div class="modal" id="popupFilter">
+        <div class="window">
+            <div class="modal_header">
+                <div id="txtHeader" class="modal_header__title">Фотографии анкеты</div>
+                <div class="modal_header__close" onclick="hidePopup();"><i class="fas fa-times"></i></div>
+            </div>
+            <div class="modal_content">
+                <div class="modal_content__wrapper">
+                    <img class="modal_photo" src="" id="popup_imgFilter" onclick="nextPhotoFilter();">
+                </div>
+                <p class="modal_nav">
+                    <i class="fas fa-chevron-left" onclick="previousPhotoFilter();"></i>
+                    <span id="modal_photo_idFilter">Фото * из *</span>
+                    <i class="fas fa-chevron-right" onclick="nextPhotoFilter();"></i>
+                </p>
+            </div>
+        </div>
+    </div>
     <div class="wrapper">
         <? include("../views/header.php"); ?>
         <? include("../views/search.php"); ?>
@@ -288,31 +325,109 @@ function echo_br($text){
                                 </p>
                                 <div class="pol treb__text__text2">
                                     <table id="extra_params">
-                                    
+                                    <?
+                                    if(strlen($vacancy['extra_params']) > 0 && $vacancy['extra_params'] != "null"){
+                                        foreach(json_decode($vacancy['extra_params'], true) as $field){
+                                            foreach(json_decode($filters, true) as $filter){
+                                                if($filter['name'] == $field['name']){ ?>
+                                                    <? if ($filter['type'] == 0 && count(explode(';', $filter['options'])) > 2)  { 
+                                                        $str = "";?>                                                        
+                                                        <?foreach(explode(";", $filter['options']) as $option) {
+                                                            if ($field[$option] == 1) {
+                                                                $str .= ''.$option.'; ';
+                                                             }
+                                                        }?>
+
+                                                        <tr>
+                                                            <td><? echo $filter['display']; ?></td>
+                                                            <td><? echo $str; ?></td>
+                                                        </tr>                                                                                                                                                                                                                                                        
+                                                               
+                                                    <?} else if ($filter['type'] == 3) {?>
+                                                        <tr>
+                                                        
+                                                        <td><? echo $filter['display']; ?></td>
+                                                           
+                                                                <div style="display: flex;">                                                                
+                                                                <?$ph =  $field['value'];  $i = 0; foreach( explode(",", $field['value']) as $val) {
+                                                                    if (strripos($val, "/") == true){
+                                                                        ?>
+                                                                    <td>
+                                                                    <video id="my-video" width="600" controls class="video-js" data-setup='
+                                                                    {                                                                
+                                                                        "techOrder": ["youtube"],
+                                                                        "sources": [{
+                                                                            "type": "video/youtube",
+                                                                            "src": "<?echo $val?>"
+                                                                            }]
+                                                                    }
+                                                                    '>                                                                
+                                                                    </video>
+                                                                    </td>
+                                                                        
+                                                                    <? continue;
+                                                                    }
+                                                                    // echo $val; ?>
+                                                                    <td>
+                                                                    <img onclick='showPopupFilter(<?echo $i?>, "<?echo $filter["display"];?>", "<?=$ph?>".split(",")); photosFilter = "<?=$ph?>".split(",");' src="/img/filter_photos/<? echo $val; ?>" class="mini_photo">
+                                                                    </td>
+                                                                    
+                                                                <?$i++;} ?>
+                                                                
+                                                            
+                                                                <? echo explode(";", $filter['options'])[$field['value']]; ?>
+                                                                </div>
+                                                        </tr>
+                                                            
+                                                    <?} else {?>
+                                                        <tr>
+                                                            <td><? echo $filter['display']; ?></td>
+                                                            <td><? echo explode(";", $filter['options'])[$field['value']]; ?></td>
+                                                        </tr>                                                                                                            
+                                                    
+                                                    <?}
+                                                }
+                                            }
+                                        }
+                                    }
+                                    ?>
 
                                     </table>
                                 </div>
                                 <script>
-                                    let filters = JSON.parse('<? echo($filters); ?>');                                    
-                                    let extraParams = JSON.parse('<? echo($vacancy['extra_params']); ?>');
-                                    filters.forEach(filter => {
-                                        let exit = false;
-                                        extraParams.forEach(param => {
-                                            if(!exit && param['name'] == filter['name']){                                                
-                                                if (filter['type'] == 0 && (filter['options'].split(";")).length > 2) {                                                    
-                                                    document.getElementById("extra_params").innerHTML+="<tr><td>"+filter['display']+"</td><td id='tst'></td></tr>";
-                                                    filter['options'].split(";").forEach(option => {
-                                                        if (param[option] == 1)
-                                                            document.getElementById("tst").innerHTML += option+"; ";                                               
-                                                    });
-                                                }
-                                                else {
-                                                    document.getElementById("extra_params").innerHTML+="<tr><td>"+filter['display']+"</td><td>"+filter['options'].split(";")[param['value']]+"</td></tr>";                                                
-                                                }
-                                                exit = true;                                            
-                                            }
-                                        });
-                                    });
+                                    // let filters = JSON.parse('<? echo($filters); ?>');                                    
+                                    // let extraParams = JSON.parse('<? echo($vacancy['extra_params']); ?>');
+                                    // filters.forEach(filter => {
+                                    //     let exit = false;
+                                    //     extraParams.forEach(param => {
+                                    //         if(!exit && param['name'] == filter['name']){                                                
+                                    //             if (filter['type'] == 0 && (filter['options'].split(";")).length > 2) {                                                    
+                                    //                 document.getElementById("extra_params").innerHTML+="<tr><td>"+filter['display']+"</td><td id='tst'></td></tr>";
+                                    //                 filter['options'].split(";").forEach(option => {
+                                    //                     if (param[option] == 1)
+                                    //                         document.getElementById("tst").innerHTML += option+"; ";                                               
+                                    //                 });
+                                    //             }
+                                    //             else if (filter['type'] == 3) {
+                                    //                 // document.getElementById("extra_params").innerHTML += "<p>"+param['value'].split(",")+"</p>";
+                                    //                 // document.getElementById("extra_params").innerHTML+="<tr><td>"+filter['display']+"</td><td>"+param['value'].split(",")+"</td></tr>";
+                                    //                 document.getElementById("extra_params").innerHTML+="<tr><td>"+filter['display']+"</td><td id='ph_"+filter['display']+"'><div id='phh_"+filter['display']+"' style='display: flex;'></div></td></tr>";
+                                    //                 i = 0;
+                                    //                 param['value'].split(",").forEach(val => {
+                                                        
+                                    //                     // photosFilter = param['value'].split(',');
+                                    //                     document.getElementById("phh_"+filter['display']).innerHTML += `<img onclick='showPopupFilter(${i}, "${filter['display']}", "${param['value'].split(',')}"); photosFilter = param["value"].split(",") ' src='/img/filter_photos/${val}' class='mini_photo'>`;
+                                    //                     i++;
+                                    //                 });
+                                    //                 photosFilter = param['value'].split(',');
+                                    //             }
+                                    //             else {
+                                    //                 document.getElementById("extra_params").innerHTML+="<tr><td>"+filter['display']+"</td><td>"+filter['options'].split(";")[param['value']]+"</td></tr>";                                                
+                                    //             }
+                                    //             exit = true;                                            
+                                    //         }
+                                    //     });
+                                    // });
                                 </script>
                             </div>
                         </div>
@@ -463,9 +578,25 @@ function echo_br($text){
                                 </div>
                                 <p class="name-of-company"><? echo($company['company_name']); ?></p>
                                 <p class="type-of-company"><? echo($company['company_type']); ?></p>
+                                <p class="type-of-company">Описание: <? echo explode(";", $company['company_desc'])[0]?></p>
+                                
                             </div>
                         </div>
                     </a>
+                    <? $val = explode(";", $company['company_desc'])[1]; if (strripos($val, "/") == true) { ?>
+                                                <p class="type-of-company">Видео о компании:</p>
+                                                
+                                                <video id="my-video1" width="600" controls class="video-js 1" data-setup='
+                                                    {                                                                
+                                                        "techOrder": ["youtube"],
+                                                        "sources": [{
+                                                            "type": "video/youtube",
+                                                            "src": "<?echo $val?>"
+                                                        }]
+                                                    }
+                                                '>                                                                
+                                                </video>
+                                                <?}?>
 
 
                     <? if($_SESSION['admin']) { ?> 
@@ -496,9 +627,19 @@ function echo_br($text){
 
     </div>
         <? include("../views/footer.php"); ?>
-        <script type="text/javascript" src="/js/vacacny.js"></script> 
+        <script type="text/javascript" src="/js/vacancy.js"></script>
+
+        <!-- for video -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/8.15.0/video.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-youtube/3.0.1/Youtube.min.js"></script>
+        <script src="https://unpkg.com/youtube-video-id@latest/dist/youtube-video-id.min.js"></script>
         
     </div>
 </body>
-<script>let current_balance = '<?=$current_balance?>';</script>
+<script>
+    let current_balance = '<?=$current_balance?>';
+    // let photosFilter = "";
+
+    
+</script>
 </html>

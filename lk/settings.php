@@ -125,11 +125,59 @@ if(isset($_POST['action'])){
                     else
                         array_push($extra_fields, ["name" => $filter['name'], "value" => 0]);
                 }
+                else if ((int) $filter['type'] == 3){
+                        
+                    $ph = [];                        
+
+                    if (!empty($_POST['extra_photos_add_'.$filter['name']])) {
+                        $i = 0;
+                        foreach($_POST['extra_photos_add_'.$filter['name']] as $value){
+                            $value = explode(";", $value)[1];
+                            $value = explode(",", $value)[1];
+                            $value = str_replace(" ", "+", $value);
+                            $value = base64_decode($value);
+
+                            $chars = '0123456789abcdefghijklmnopqrstuvwxyz';
+                            $shuflChars = strtoupper(substr(str_shuffle($chars), 0, 4));
+                            $randNum = rand(1000, 9999);
+
+                            $photoName = "$randNum$shuflChars.jpg";
+
+                            $ph[$i] = $photoName;
+
+                            file_put_contents($_SERVER["DOCUMENT_ROOT"] . "/img/filter_photos/$photoName", $value);                                
+                            $i++;
+                        }
+                    }
+
+                    if (!empty($_POST['extra_photos_name_'.$filter['name']])) {
+                        foreach($_POST['extra_photos_name_'.$filter['name']] as $name) {
+                            if (file_exists($_SERVER["DOCUMENT_ROOT"] . "/img/filter_photos/".$name)) {
+                                array_push($ph, $name);
+                            }
+                        }
+                    }
+                    
+                    if (!empty($_POST['extra_remove_photos_'.$filter['name']])) {
+                        foreach($_POST['extra_remove_photos_'.$filter['name']] as $name) {
+                            if (file_exists($_SERVER["DOCUMENT_ROOT"] . "/img/filter_photos/".$name)) {
+                                unlink($_SERVER["DOCUMENT_ROOT"] . "/img/filter_photos/".$name);
+                            }
+                        }
+                    }
+                    
+
+                    if (!empty($_POST['inpUrl_'.$filter['name']])) 
+                        array_push($ph, $_POST['inpUrl_'.$filter['name']]);
+                    
+
+                    array_push($extra_fields, ["name" => $filter['name'], "value" => implode(",", $ph)]);
+                }
                 else{
                     array_push($extra_fields, ["name" => $filter['name'], "value" => (int) $_POST['extra_'.$filter['name']]]);
                 }
             }
-            
+           
             $extra_fields = json_encode($extra_fields);
             if(Company::Edit($link, $company_id, $_POST, $extra_fields)){
                 $notify = '

@@ -36,6 +36,18 @@ switch($_SESSION['account_type']){
         $OFFER_STATUS = Array("<b>Новый</b>", "<b style='color: darkgreen;'>Принят</b>", "<b style='color: darkred;'>Отклонен</b>");
 
         include("../views/lk_view/employer_index.php"); 
+        break;
+    case 3:
+        $sql = User::GetAnketViewsSQL($_SESSION['id']).User::GetAnketPurchasesCountSQL($_SESSION['id']).User::GetAnketPurchasesSQL($_SESSION['id']);
+        list($anket_views, $anket_purchases_count, $anket_purchases) = MultiQuery($link, $sql);
+        $anket_views           = $anket_views[0]['anket_views'];
+        $anket_purchases_count = $anket_purchases_count[0]['anket_purchases_count'];
+
+        $user = User::GetWorker($link, $_SESSION['id']);
+        $filters = $user['filters'];
+        $user = $user['user'];
+        
+        include("../views/lk_view/hr_index.php"); 
         break;    
     default:
         die("500 Internal Server Error");

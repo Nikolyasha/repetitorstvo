@@ -534,7 +534,9 @@ $ankets_count = $ankets_count[0]['ankets_count'];
                                             <? $i++; } ?>
                                         </ul>
                                         <script>
+                                            alert("AA) <?$_GET["extra_{$filter['name']}"]?>");
                                             if (<?= (!empty($_GET["extra_{$filter['name']}"]) && ((int) $_GET["extra_{$filter['name']}"]) > -1) ? "true" : "false" ?>) openList.push(document.getElementsByClassName("positions")[document.getElementsByClassName("positions").length - 1]);
+                                            
                                         </script>
                                         <script>
                                             if (<?= !empty("extra_{$filter['name']}") ? "true" : "false" ?>) {
@@ -543,6 +545,7 @@ $ankets_count = $ankets_count[0]['ankets_count'];
                                                 });
                                                 openList.push(document.getElementsByClassName("positions")[document.getElementsByClassName("positions").length - 1]);
                                             }
+                                            
                                         </script>
                                         <? break;
                                                 case 1:  ?>
