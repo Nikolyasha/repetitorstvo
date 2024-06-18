@@ -1,5 +1,8 @@
 <link rel="stylesheet" type="text/css" href="../bower_components/switchery/css/switchery.min.css">
 
+<!-- for video -->
+<link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+
 <style>
     .action_column{
         text-align: center !important;
@@ -47,6 +50,20 @@
     }
     .element-margin{
         margin-top: 5px;
+    }
+    .mini_photo {
+        width: 200px;
+        height: 200px;
+        border-radius: 5px;
+        object-fit: cover;
+        /* margin-top: 10px; */
+        margin-right: 10px;
+    }
+    .bm_rm_button{
+        font-weight: blod;
+        color: red;
+        cursor: pointer;
+        text-decoration: underline;
     }
 </style>
 
@@ -340,6 +357,35 @@
                                                     </select>
                                                 </div>
                                                 <? break;
+                                            case 3: ?>
+                                                
+                                                        <? if ($field['name'] == "portfolio") { ?>
+                                                        <div class="col-sm-10">
+                                                            <input id="inpUrl_<?echo $field['name']?>" style="margin-bottom: 10px;" value="" name="inpUrl_<?echo $field['name']?>" type="text" class="form-control" placeholder="Введите ссылку с youtube" onchange="viewVideo(this.value)">
+                                                             
+                                                            <video id="my-video" width="600" class="video-js" data-setup='
+                                                            {                                                                
+                                                                "techOrder": ["youtube"],
+                                                                "conytols": none,
+                                                                "sources": [{
+                                                                    "type": "video/youtube",
+                                                                    "src": "https://www.youtube.com/watch?v=qt9-2_9LxHk"
+                                                                    }]
+                                                            }
+                                                            '>                                                                
+                                                            </video>
+                                                                                                                                                                                                                                                       
+                                                        </div>
+                                                        <?} ?>
+                                                        <br>
+                                                        
+                                                        <input class="" type="file" name="extra_photos_<?echo $field['name']?>[]" placeholder="Выберите фотографии" accept="image/*" id="imgInp_<?echo $field['name']?>" onchange="preview('<?=$field['name']?>')">
+                                                    
+                                                        <div style="display: flex;" id="imgForm_<?echo $field['name']?>">                                                        
+                                                        </div>
+                                                        
+                                                        
+                                                    <? break;
                                         } ?>
                                 </div>
                             <? } ?>
@@ -389,6 +435,11 @@
     <script src="../assets/js/jquery.mCustomScrollbar.concat.min.js"></script>
     <script src="../assets/js/jquery.mousewheel.min.js"></script>
 
+    <!-- for video -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/8.15.0/video.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-youtube/3.0.1/Youtube.min.js"></script>
+    <script src="https://unpkg.com/youtube-video-id@latest/dist/youtube-video-id.min.js"></script>
+
     <script>
         function another(){
             let form = document.forms[0];
@@ -404,4 +455,6 @@
         let vacancy_price = <? echo $_SETTINGS['vacancy_price']; ?>;
         let action = 'create';
         let edit_payment = '<?= $_SETTINGS['active_vacancy_edit_option']?>';
+
+        const max_photos = <?=$_SETTINGS['max_profile_photos_option']?$_SETTINGS['max_profile_photos_option']:"5"?>;
     </script>

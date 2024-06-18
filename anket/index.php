@@ -57,6 +57,8 @@ foreach($cities_arr as $city){
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
     <link rel="stylesheet" href="/css/user.css">
+    <!-- for video -->
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
     <title><? echo  $user['first_name']; ?>  <? if($_SESSION['account_type'] == 2){ echo $user['last_name']; } else { echo("***"); }?> на <? echo($_SETTINGS['site_name_option']); ?></title>
     <script type="text/javascript" src="/bower_components/jquery/js/jquery.min.js"></script> 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
@@ -67,6 +69,20 @@ foreach($cities_arr as $city){
     <style>
         :root {
             --main-site-color: <?=$_SETTINGS['primay_color_option']?>;
+        }
+        .mini_photo {
+        width: 200px;
+        height: 200px;
+        border-radius: 5px;
+        object-fit: cover;
+        /* margin-top: 10px; */
+        margin-right: 10px;
+        }
+        .modal_photo {
+        width: 800px;
+        height: 480px;
+        border-radius: 5px;
+        object-fit: cover;
         }
     </style>
 </head>
@@ -89,6 +105,26 @@ foreach($cities_arr as $city){
             </div>
         </div>
     </div>
+    <!-- for filter photo -->
+    <div class="modal" id="popupFilter">
+        <div class="window">
+            <div class="modal_header">
+                <div id="txtHeader" class="modal_headertitle">Фотографии анкеты</div>
+                <div class="modal_headerclose" onclick="hidePopup();"><i class="fas fa-times"></i></div>
+            </div>
+            <div class="modal_content">
+                <div class="modal_content__wrapper">
+                    <img class="modal_photo" src="" id="popup_imgFilter" onclick="nextPhotoFilter();">
+                </div>
+                <p class="modal_nav">
+                    <i class="fas fa-chevron-left" onclick="previousPhotoFilter();"></i>
+                    <span id="modal_photo_idFilter">Фото * из *</span>
+                    <i class="fas fa-chevron-right" onclick="nextPhotoFilter();"></i>
+                </p>
+            </div>
+        </div>
+    </div>
+
     <div class="wrapper">
         <? include("../views/header.php"); ?>
         <? include("../views/search.php"); ?>
@@ -409,6 +445,38 @@ foreach($cities_arr as $city){
                                                                         <? echo $str; ?>
                                                                     </div>
                                                                 </div>
+                                                                <?} else if ($extra_field['type'] == 3) {?>
+                                                                    <div class="info__block info__block1">
+                                                                        <div class="info__world">
+                                                                            <? echo $extra_field['display']; ?>
+                                                                        </div>
+                                                                        <div class="info__city">
+                                                                            <div style="display: flex;">                                                                
+                                                                            <?$ph =  $field['value'];  $i = 0; foreach( explode(",", $field['value']) as $val) {
+                                                                                if (strripos($val, "/") == true){?>
+
+                                                                                <video id="my-video" width="600" controls class="video-js" data-setup='
+                                                                                {                                                                
+                                                                                    "techOrder": ["youtube"],
+                                                                                    "sources": [{
+                                                                                        "type": "video/youtube",
+                                                                                        "src": "<?echo $val?>"
+                                                                                        }]
+                                                                                }
+                                                                                '>                                                                
+                                                                                </video>
+                                                                                    
+                                                                                <? continue;
+                                                                                }
+                                                                                // echo $val; ?>
+                                                                                <img onclick='showPopupFilter(<?echo $i?>, "<?echo $extra_field["display"];?>", "<?=$ph?>".split(",")); photosFilter = "<?=$ph?>".split(",");' src="/img/filter_photos/<? echo $val; ?>" class="mini_photo">
+                                                                            <?$i++;} ?>
+                                                                            
+                                                                        
+                                                                            <? echo explode(";", $extra_field['options'])[$field['value']]; ?>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
                                                         <?} else {?>
                                                         
                                                         <div class="info__block info__block1">
@@ -486,7 +554,10 @@ foreach($cities_arr as $city){
 
         <? include("../views/footer.php"); ?>
         <script type="text/javascript" src="/js/user.js"></script> 
-        
+        <!-- for video -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/8.15.0/video.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-youtube/3.0.1/Youtube.min.js"></script>
+        <script src="https://unpkg.com/youtube-video-id@latest/dist/youtube-video-id.min.js"></script>
         <script type="text/javascript">
             let photos = "<? echo str_replace(" ", "", $user['photos']); ?>".split(",");
             

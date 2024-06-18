@@ -106,6 +106,8 @@ function echo_br($text){
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
     <link rel="stylesheet" href="/css/vacancy.css">
+    <!-- for video -->
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
     <title>Вакансия <? echo($vacancy['name'] . " " . $_SETTINGS['site_name_option']); ?></title>
     <script type="text/javascript" src="/bower_components/jquery/js/jquery.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -288,32 +290,74 @@ function echo_br($text){
                                 </p>
                                 <div class="pol treb__text__text2">
                                     <table id="extra_params">
-                                    
+                                    <?
+                                    if(strlen($vacancy['extra_params']) > 0 && $vacancy['extra_params'] != "null"){
+                                        foreach(json_decode($vacancy['extra_params'], true) as $field){
+                                            foreach(json_decode($filters, true) as $filter){
+                                                if($filter['name'] == $field['name']){ ?>
+                                                    <? if ($filter['type'] == 0 && count(explode(';', $filter['options'])) > 2)  { 
+                                                        $str = "";?>                                                        
+                                                        <?foreach(explode(";", $filter['options']) as $option) {
+                                                            if ($field[$option] == 1) {
+                                                                $str .= ''.$option.'; ';
+                                                             }
+                                                        }?>
 
+                                                        <tr>
+                                                            <td><? echo $filter['display']; ?></td>
+                                                            <td><? echo $str; ?></td>
+                                                        </tr>                                                                                                                                                                                                                                                        
+                                                               
+                                                    <?} else if ($filter['type'] == 3) {?>
+                                                        <tr>
+                                                        
+                                                        <td><? echo $filter['display']; ?></td>
+                                                           
+                                                                <div style="display: flex;">                                                                
+                                                                <?$ph =  $field['value'];  $i = 0; foreach( explode(",", $field['value']) as $val) {
+                                                                    if (strripos($val, "/") == true){
+                                                                        ?>
+                                                                    <td>
+                                                                    <video id="my-video" width="600" controls class="video-js" data-setup='
+                                                                    {                                                                
+                                                                        "techOrder": ["youtube"],
+                                                                        "sources": [{
+                                                                            "type": "video/youtube",
+                                                                            "src": "<?echo $val?>"
+                                                                            }]
+                                                                    }
+                                                                    '>                                                                
+                                                                    </video>
+                                                                    </td>
+                                                                        
+                                                                    <? continue;
+                                                                    }
+                                                                    // echo $val; ?>
+                                                                    <td>
+                                                                    <img onclick='showPopupFilter(<?echo $i?>, "<?echo $filter["display"];?>", "<?=$ph?>".split(",")); photosFilter = "<?=$ph?>".split(",");' src="/img/filter_photos/<? echo $val; ?>" class="mini_photo">
+                                                                    </td>
+                                                                    
+                                                                <?$i++;} ?>
+                                                                
+                                                            
+                                                                <? echo explode(";", $filter['options'])[$field['value']]; ?>
+                                                                </div>
+                                                        </tr>
+                                                            
+                                                    <?} else {?>
+                                                        <tr>
+                                                            <td><? echo $filter['display']; ?></td>
+                                                            <td><? echo explode(";", $filter['options'])[$field['value']]; ?></td>
+                                                        </tr>                                                                                                            
+                                                    
+                                                    <?}
+                                                }
+                                            }
+                                        }
+                                    }
+                                    ?>
                                     </table>
                                 </div>
-                                <script>
-                                    let filters = JSON.parse('<? echo($filters); ?>');                                    
-                                    let extraParams = JSON.parse('<? echo($vacancy['extra_params']); ?>');
-                                    filters.forEach(filter => {
-                                        let exit = false;
-                                        extraParams.forEach(param => {
-                                            if(!exit && param['name'] == filter['name']){                                                
-                                                if (filter['type'] == 0 && (filter['options'].split(";")).length > 2) {                                                    
-                                                    document.getElementById("extra_params").innerHTML+="<tr><td>"+filter['display']+"</td><td id='tst'></td></tr>";
-                                                    filter['options'].split(";").forEach(option => {
-                                                        if (param[option] == 1)
-                                                            document.getElementById("tst").innerHTML += option+"; ";                                               
-                                                    });
-                                                }
-                                                else {
-                                                    document.getElementById("extra_params").innerHTML+="<tr><td>"+filter['display']+"</td><td>"+filter['options'].split(";")[param['value']]+"</td></tr>";                                                
-                                                }
-                                                exit = true;                                            
-                                            }
-                                        });
-                                    });
-                                </script>
                             </div>
                         </div>
                         <div class="zp__vakancy">
@@ -463,9 +507,24 @@ function echo_br($text){
                                 </div>
                                 <p class="name-of-company"><? echo($company['company_name']); ?></p>
                                 <p class="type-of-company"><? echo($company['company_type']); ?></p>
+                                <p class="type-of-company">Описание: <? echo explode(";", $company['company_desc'])[0]?></p>
                             </div>
                         </div>
                     </a>
+                    <? $val = explode(";", $company['company_desc'])[1]; if (strripos($val, "/") == true) { ?>
+                        <p class="type-of-company">Видео о компании:</p>
+
+                        <video id="my-video1" width="600" controls class="video-js 1" data-setup='
+                            {
+                                "techOrder": ["youtube"],
+                                "sources": [{
+                                    "type": "video/youtube",
+                                    "src": "<?echo $val?>"
+                                }]
+                            }
+                        '>
+                        </video>
+                    <?}?>
 
 
                     <? if($_SESSION['admin']) { ?> 
@@ -497,7 +556,10 @@ function echo_br($text){
     </div>
         <? include("../views/footer.php"); ?>
         <script type="text/javascript" src="/js/vacacny.js"></script> 
-        
+        <!-- for video -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/8.15.0/video.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-youtube/3.0.1/Youtube.min.js"></script>
+        <script src="https://unpkg.com/youtube-video-id@latest/dist/youtube-video-id.min.js"></script>
     </div>
 </body>
 <script>let current_balance = '<?=$current_balance?>';</script>

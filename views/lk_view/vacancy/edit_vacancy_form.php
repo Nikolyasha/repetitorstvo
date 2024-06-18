@@ -1,5 +1,8 @@
 <link rel="stylesheet" type="text/css" href="../bower_components/switchery/css/switchery.min.css">
 
+<!-- for video -->
+<link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+
 <style>
     .action_column{
         text-align: center !important;
@@ -47,6 +50,20 @@
     }
     .element-margin{
         margin-top: 5px;
+    }
+    .mini_photo {
+        width: 200px;
+        height: 200px;
+        border-radius: 5px;
+        object-fit: cover;
+        /* margin-top: 10px; */
+        margin-right: 10px;
+    }
+    .bm_rm_button{
+        font-weight: blod;
+        color: red;
+        cursor: pointer;
+        text-decoration: underline;
     }
 </style>
 
@@ -360,6 +377,70 @@
                                                         </select>
                                                     </div>
                                                     <? break;
+                                                case 3: ?>
+                                                    <? $phot = [];
+                                                        foreach(json_decode($vacancy['extra_params']) as $param){
+                                                            if ($param->name == $field['name'])                                                          
+                                                                $phot[$param->name] = explode(",", $param->value);                                                                                                                                       
+                                                        }                                                        
+                                                        ?>
+                                                            <? if ($field['name'] == "portfolio") { ?>
+                                                            <div class="col-sm-10">                                                                
+                                                                <?if (!empty($phot[$field['name']])) {?>
+                                                                <input id="inpUrl_<?echo $field['name']?>" style="margin-bottom: 10px;" value="<?echo !strripos(end($phot[$field['name']]), "/") ? "" : end($phot[$field['name']])?>" name="inpUrl_<?echo $field['name']?>" type="text" class="form-control" placeholder="Введите ссылку с youtube" onchange="viewVideo(this.value)">
+                                                                 
+                                                                <video id="my-video" width="600" <?echo !strripos(end($phot[$field['name']]), "/") ? "" : 'controls' ?> class="video-js" data-setup='
+                                                                {                                                                
+                                                                    "techOrder": ["youtube"],
+                                                                    "sources": [{
+                                                                        "type": "video/youtube",
+                                                                        "src": "<?echo !strripos(end($phot[$field['name']]), "/") ? "https://www.youtube.com/watch?v=qt9-2_9LxHk" : end($phot[$field['name']])?>"
+                                                                        }]
+                                                                }
+                                                                '>                                                                
+                                                                </video>
+                                                                <?} else {?>
+                                                                    <input id="inpUrl_<?echo $field['name']?>" style="margin-bottom: 10px;" value="" name="inpUrl_<?echo $field['name']?>" type="text" class="form-control" placeholder="Введите ссылку с youtube" onchange="viewVideo(this.value)">
+                                                                 
+                                                                <video id="my-video" width="600" class="video-js" data-setup='
+                                                                {                                                                
+                                                                    "techOrder": ["youtube"],
+                                                                    "sources": [{
+                                                                        "type": "video/youtube",
+                                                                        "src": "https://www.youtube.com/watch?v=qt9-2_9LxHk"
+                                                                        }]
+                                                                }
+                                                                '>                                                                
+                                                                </video>
+                                                                <?}?>                                                                                                                                                                                          
+                                                            </div>
+                                                            <?} ?>
+                                                            <br>
+                                                            
+                                                            <input class="" type="file" name="extra_photos_<?echo $field['name']?>[]" placeholder="Выберите фотографии" accept="image/*" id="imgInp_<?echo $field['name']?>" onchange="preview('<?=$field['name']?>')">
+                                                        
+                                                            <div style="display: flex;" id="imgForm_<?echo $field['name']?>">
+    
+                                                            <? if (!empty($phot[$field['name']])) {                                                                 
+                                                                foreach($phot[$field['name']] as $val){
+                                                                    if (strripos($val, "/") == true)
+                                                                        continue;
+                                                                                                                                
+                                                                    if (($val != "")) {?>
+                                                                        <input id="<? echo $val; ?>" type="hidden" name="extra_remove_photos_<?echo $field['name']?>[]" value="rm"/>                                                             
+                                                                        <div id="photo_<?echo $field['name']?>">
+                                                                            <input type="hidden" name="extra_photos_name_<?echo $field['name']?>[]" value="<? echo $val; ?>"/>                                                                                                                            
+                                                                            <a target="_blank" href="/img/filter_photos/<? echo $val; ?>"><img src="/img/filter_photos/<? echo $val; ?>" class="mini_photo"></a>
+                                                                            <span><?echo $val;?></span>
+                                                                            <span onclick="removeImg(this)" class="bm_rm_button">Удалить</span>                                                                    
+                                                                        </div>                                                                                                                                                                                    
+                                                                    <?}
+                                                                }
+                                                            }?>
+                                                            </div>
+                                                            
+                                                            
+                                                        <? break;
                                             } ?>
                                     </div>
                             <? } 
@@ -410,6 +491,11 @@
     <script src="../assets/js/demo-12.js"></script>
     <script src="../assets/js/jquery.mCustomScrollbar.concat.min.js"></script>
     <script src="../assets/js/jquery.mousewheel.min.js"></script>
+
+    <!-- for video -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/8.15.0/video.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-youtube/3.0.1/Youtube.min.js"></script>
+    <script src="https://unpkg.com/youtube-video-id@latest/dist/youtube-video-id.min.js"></script>
     
     
     <script>
@@ -433,4 +519,8 @@
         let vacancy_price = <? echo $_SETTINGS['vacancy_edit_price']; ?>;
         let action = 'edit';
         let edit_payment = '<?= $_SETTINGS['active_vacancy_edit_option']?>';
+
+        const max_photos = <?=$_SETTINGS['max_profile_photos_option']?$_SETTINGS['max_profile_photos_option']:"5"?>;
+
+        
     </script>

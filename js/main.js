@@ -215,6 +215,64 @@ function verifryForm(){
     }
     
 }
+function removeImg(value) {
+    value.parentElement.remove();
+
+    let id_remove = value.parentElement.children[0].value;    
+    document.getElementById(id_remove).value = id_remove;
+    
+}
+
+function preview(id) {
+    
+    let imageContainer = document.getElementById("imgForm_"+id);
+    let imgI = document.getElementById("imgInp_"+id);
+
+    for (i of imgI.files){
+        
+        let reader = new FileReader();                              
+
+        reader.onload = function() {            
+            if (i.size > 5242880) {
+                swal("Файл '" + i.name + "' больше 5 МБ", "Размер загружаемого файла не должен привышать 5 мб", "warning");
+                return;
+            }
+            else if(i.type.split("/")[0] != "image" || i.type.split("/")[1] == "gif"){
+                swal("Файл '" + i.name + "' не является изображением", "Загружайте только изображения", "warning");                
+                return;
+            }
+            else if (document.querySelectorAll('#photo_'+id).length == max_photos) {
+                swal("Вы достигли ограничения файлов", "Можно загрузить до " + max_photos + " фотографий", "warning");
+                return;
+            }
+            else {                            
+            
+                imageContainer.innerHTML += '<div id="photo_'+id+'"><img src="' + reader.result +'" class="mini_photo"><span>'+i.name+'</span><span onclick="removeImg(this)" class="bm_rm_button">Удалить</span> <input type="hidden" name="extra_photos_add_'+id+'[]" value="'+reader.result+'"/> </div>';
+            }
+            
+        }        
+        
+        reader.readAsDataURL(i);
+        
+    }
+    
+}
+
+function viewVideo(url) {
+
+    videojs('my-video').ready(function() {
+        
+        var myPlayer = this;
+        
+        myPlayer.src({ type: 'video/youtube', src: url });
+        myPlayer.controls(true);
+        
+        const videoId = YouTubeVideoId(url);
+        myPlayer.poster('https://img.youtube.com/vi/'+videoId+'/maxresdefault.jpg');
+        
+    });
+    
+}
 
 //#endregion
 

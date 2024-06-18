@@ -32,7 +32,7 @@ class Vacancy{
     public static function GetVacancy($link, $id, $user_id = -1){
         $user_id = (int) $user_id;
         $purchased = $user_id > 0 ? ", (SELECT COUNT(`id`) FROM `purchases` WHERE `owner_id` = '$user_id' AND `object_type` = 1 AND `object_id` = (SELECT `owner_id` FROM `vacancies` WHERE `vacancies`.`id` = '".((int) $id)."')) as `purchased` " : "";
-        $sql = "SELECT `companies`.`id`, `company_name`, `company_type_name` AS `company_type`, `logo` FROM `companies` 
+        $sql = "SELECT `companies`.`id`, `company_name`, `company_type_name` AS `company_type`, `company_desc`, `logo` FROM `companies` 
                     INNER JOIN `cities` ON `cities`.`id` = `companies`.`city` 
                     INNER JOIN `company_types` ON `company_types`.`id` = `companies`.`company_type` 
                 WHERE `companies`.`id` = 

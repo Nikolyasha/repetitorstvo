@@ -44,6 +44,8 @@ class Company{
             'company_owner_status'
         ];
         foreach($required_params as $required_param){
+            if ($required_param == 'company_desc')
+                continue;
             if(empty(trim($params[$required_param]))){
                 return False;
             }
@@ -57,7 +59,7 @@ class Company{
                     `company_status`    ='".($status)."',
                     `city`              ='".((int) $params['company_city'])."',
                     `office_adress`     ='".htmlspecialchars(mysqli_real_escape_string($link, trim($params['company_office_adress'])))."',
-                    `company_desc`      ='".htmlspecialchars(mysqli_real_escape_string($link, trim($params['company_desc'])))."',
+                    `company_desc`      ='".htmlspecialchars(mysqli_real_escape_string($link, implode(";", $params['company_desc'])))."',
                     `company_contacts`  ='".htmlspecialchars(mysqli_real_escape_string($link, trim($params['company_contacts'])))."',
                     `owner_name`        ='".htmlspecialchars(mysqli_real_escape_string($link, trim($params['company_owner_name'])))."',
                     `owner_phone`       ='".htmlspecialchars(mysqli_real_escape_string($link, trim($params['company_owner_phone'])))."',
@@ -65,7 +67,7 @@ class Company{
                     `extra_params`      = '".mysqli_real_escape_string($link, $extra)."'
                     ".(!empty($params['company_logo']) ? ', `logo`=\''.htmlspecialchars(mysqli_real_escape_string($link, $params['company_logo'])).'\'' : '')."
                 WHERE `id` = $id";
-        
+        //`company_desc`      ='".htmlspecialchars(mysqli_real_escape_string($link, trim($params['company_desc'])))."',
         if(mysqli_query($link, $sql)){
             $name = htmlspecialchars(mysqli_real_escape_string($link, trim($params['company_owner_name'])));
             $sql = "UPDATE `users` SET `name` = '$name' WHERE `users`.`id` = $id;";
